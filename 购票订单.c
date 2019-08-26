@@ -82,10 +82,10 @@ void OrderTicket(char id[],int SeatNum,int seat[][2],char moviename[]){
     if((fp=fopen("Order_Ticket.txt","w"))==NULL)    //将订单信息写入文件
         exit(0);
     for(int i=0;i<OrderNum;i++){
-        fprintf(fp,"%s",temp[i].ID);
-        fprintf(fp,"%d",temp[i].num);
-        fprintf(fp,"%s",temp[i].moviename);
-        fprintf(fp,"%d",temp[i].SeatNum);
+        fprintf(fp,"%s\n",temp[i].ID);
+        fprintf(fp,"%d\n",temp[i].num);
+        fprintf(fp,"%s\n",temp[i].moviename);
+        fprintf(fp,"%d\n",temp[i].SeatNum);
         for(int j=0;j<temp[i].SeatNum;j++)     //录入座位信息
             fprintf(fp,"%d%d",temp[i].seat[j][0],temp[i].seat[j][1]);
         fprintf(fp,"%d",temp[i].MoneyAccount);
