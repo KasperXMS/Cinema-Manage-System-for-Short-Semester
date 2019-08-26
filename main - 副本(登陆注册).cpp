@@ -1,12 +1,12 @@
 /*
-³õ°æµÇÂ¼½çÃæ 
-×îºó±à¼­ÓÚ2019-08-26 23:24 
-Ä¿Ç°Î´·¢ÏÖÎÄ¼ş¶ÁĞ´µÄÎÊÌâ£¬×¢²áµÇÂ¼Ä£¿éÈİ´íĞÔ×ãÒÓ 
-²Ëµ¥·Ç·¨ÊäÈëÈÔ»áµ¼ÖÂËÀÑ­»·bug 
-ÏÂÒ»²½½«¸Ä³É³¤×Ö·û´®ÊäÈëĞÎÊ½ÒÔ»º³å·Ç·¨ÊäÈëµÄÆÆ»µĞÔ 
-Î´Íê³ÉÓÃ»§ÍêÕûĞÅÏ¢µÄÂ¼Èë¹¦ÄÜ 
+åˆç‰ˆç™»å½•ç•Œé¢ 
+æœ€åç¼–è¾‘äº2019-08-26 23:24 
+ç›®å‰æœªå‘ç°æ–‡ä»¶è¯»å†™çš„é—®é¢˜ï¼Œæ³¨å†Œç™»å½•æ¨¡å—å®¹é”™æ€§è¶³çŸ£ 
+èœå•éæ³•è¾“å…¥ä»ä¼šå¯¼è‡´æ­»å¾ªç¯bug 
+ä¸‹ä¸€æ­¥å°†æ”¹æˆé•¿å­—ç¬¦ä¸²è¾“å…¥å½¢å¼ä»¥ç¼“å†²éæ³•è¾“å…¥çš„ç ´åæ€§ 
+æœªå®Œæˆç”¨æˆ·å®Œæ•´ä¿¡æ¯çš„å½•å…¥åŠŸèƒ½ 
  
- ×¢Òâ£ºÆô¶¯Ê±Ò»¶¨È·±£µ±Ç°Ä¿Â¼ÏÂÓĞ\accounts\adminºÍ\accounts\userÄ¿Â¼£¬·ñÔòÎŞ·¨Ğ´ÈëÓÃ»§ĞÅÏ¢ÎÄ¼ş£¡ 
+ æ³¨æ„ï¼šå¯åŠ¨æ—¶ä¸€å®šç¡®ä¿å½“å‰ç›®å½•ä¸‹æœ‰\accounts\adminå’Œ\accounts\userç›®å½•ï¼Œå¦åˆ™æ— æ³•å†™å…¥ç”¨æˆ·ä¿¡æ¯æ–‡ä»¶ï¼ 
 
 */
 
@@ -18,16 +18,16 @@
 
 #define MAX 101
 
-//-----¹¦ÄÜº¯ÊıÉùÃ÷Çø----- 
+//-----åŠŸèƒ½å‡½æ•°å£°æ˜åŒº----- 
 int regisUI(char path[]);
 int regis(int choice, char path[]);
 int loginUI(char path[]);
 int login(int choice, char path[]);
 
-//-----¸¨Öúº¯ÊıÉùÃ÷Çø-----
+//-----è¾…åŠ©å‡½æ•°å£°æ˜åŒº-----
 char *randspawner(); 
 
-//-----Ö÷µÇÂ¼½çÃæÈë¿Ú------ 
+//-----ä¸»ç™»å½•ç•Œé¢å…¥å£------ 
 int WelcomeUI(char path[])
 {
 	int value=1;
@@ -41,7 +41,7 @@ int WelcomeUI(char path[])
 		printf("enter option:");
 		if(!scanf("%d",&choice))
 		{
-			printf("Input error!\n");				//ÒÑÖª´Ë´¦ÓĞ·Ç·¨ÊäÈëËÀÑ­»·bug 
+			printf("Input error!\n");				//å·²çŸ¥æ­¤å¤„æœ‰éæ³•è¾“å…¥æ­»å¾ªç¯bug 
 		}
 		else
 		{
@@ -61,11 +61,11 @@ int WelcomeUI(char path[])
 			}
 		}
 	}
-	return value;							//0-ÍÆ³ö  2-µÇÂ¼ÒÑ³É¹¦£¬½øÈëµÇÂ½ºó½çÃæ 
+	return value;							//0-æ¨å‡º  2-ç™»å½•å·²æˆåŠŸï¼Œè¿›å…¥ç™»é™†åç•Œé¢ 
 };
 
-//-----Ö÷º¯Êı-----
-int main(int argc, char *argv[])			//argv[0]°üº¬ÁËÎÄ¼şÂ·¾¶ĞÅÏ¢ 
+//-----ä¸»å‡½æ•°-----
+int main(int argc, char *argv[])			//argv[0]åŒ…å«äº†æ–‡ä»¶è·¯å¾„ä¿¡æ¯ 
 {
 	switch(WelcomeUI(argv[0]))
 	{
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])			//argv[0]°üº¬ÁËÎÄ¼şÂ·¾¶ĞÅÏ¢
 			break;
 		case 2:
 			printf("Experimental Page. Login action passed successfully!\n");
-			printf("Later functons are under development. Coming soon.\n");			//½Ó¿ÚÔ¤Áô´¦ 
+			printf("Later functons are under development. Coming soon.\n");			//æ¥å£é¢„ç•™å¤„ 
 			break;
 		default:
 			printf("Something wrong occured.\n");
@@ -93,7 +93,7 @@ int regisUI(char path[])
 		printf("2. User\n");
 		printf("3. Back\n");
 		printf("Enter option:\n");
-		if(!scanf("%d",&choice))								//´Ë´¦Â³°ôĞÔÁ¼ºÃ 
+		if(!scanf("%d",&choice))								//æ­¤å¤„é²æ£’æ€§è‰¯å¥½ 
 		{
 			printf("Input error!\n");
 			flag=0;
@@ -132,7 +132,7 @@ int loginUI(char path[])
 	int choice=0, flag=1;
 	while(flag)
 	{
-		printf("**********Register**********\n");
+		printf("**********Login**********\n");
 		printf("Login as:\n");
 		printf("1. Administrator\n");
 		printf("2. User\n");
@@ -147,11 +147,11 @@ int loginUI(char path[])
 		{
 			if(choice==1 || choice==2)
 			{
-				flag=regis(choice, path);
+				flag=login(choice, path);
 				if(flag)
 				{
 					printf("Login successfully!\n");
-					return 2;							//»Ø´«ÖµÎª2Ôò´¥·¢»¶Ó­½çÃæº¯Êı½áÊø£¬½øÈëµÇÂ¼ºó½çÃæ 
+					return 2;							//å›ä¼ å€¼ä¸º2åˆ™è§¦å‘æ¬¢è¿ç•Œé¢å‡½æ•°ç»“æŸï¼Œè¿›å…¥ç™»å½•åç•Œé¢ 
 				}
 				else
 				{
@@ -171,19 +171,19 @@ int loginUI(char path[])
 	return 1;
 }
 
-//-----×¢²á»úÖÆµÄ¾ßÌåÊµÏÖ------ 
+//-----æ³¨å†Œæœºåˆ¶çš„å…·ä½“å®ç°------ 
 int regis(int choice, char path[])
 {
-	FILE *out;                                                           //ÉèÁ¢ÎÄ¼şÖ¸Õë 
-	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};    //³õÊ¼»¯ÓÃ»§ÃûÃÜÂë×Ö·û´® 
-	char filename[MAX]={'\0'};  										 //³õÊ¼»¯ÎÄ¼şÃû×Ö·û´® 
-	int flag=0;                                                          //¿ØÖÆÑ­»· 
-	printf("All inputs shall not beyond 20 characters\n");               //¡°ËùÓĞµÄÊäÈë²»Ó¦³¬¹ı20×Ö·û¡± 
+	FILE *out;                                                           //è®¾ç«‹æ–‡ä»¶æŒ‡é’ˆ 
+	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};    //åˆå§‹åŒ–ç”¨æˆ·åå¯†ç å­—ç¬¦ä¸² 
+	char filename[MAX]={'\0'};  										 //åˆå§‹åŒ–æ–‡ä»¶åå­—ç¬¦ä¸² 
+	int flag=0;                                                          //æ§åˆ¶å¾ªç¯ 
+	printf("All inputs shall not beyond 20 characters\n");               //â€œæ‰€æœ‰çš„è¾“å…¥ä¸åº”è¶…è¿‡20å­—ç¬¦â€ 
 	printf("Enter username:");
 	while(flag<3)
 	{
 		flag=3;
-		if(!scanf("%s",username))                                        //·À³ö´í 
+		if(!scanf("%s",username))                                        //é˜²å‡ºé”™ 
 		{
 			printf("Illegal input!\n");
 			flag--;
@@ -200,7 +200,7 @@ int regis(int choice, char path[])
 			printf("Illlegal input!\n");
 			flag--;
 		}
-	}                     												 //²½Öè¾ùÎŞÎÊÌâ·½¿ÉÌø³öÑ­»· 
+	}                     												 //æ­¥éª¤å‡æ— é—®é¢˜æ–¹å¯è·³å‡ºå¾ªç¯ 
 	
 	if(strcmp(password1,password2)==0)
 	{
@@ -215,19 +215,19 @@ int regis(int choice, char path[])
 		{
 			strcat(filename, "accounts\\user\\");
 			strcat(filename, username);
-			strcat(filename, ".acc");                                    //ÎÄ¼şÂ·¾¶ÃûÆ´½Ó 
+			strcat(filename, ".acc");                                    //æ–‡ä»¶è·¯å¾„åæ‹¼æ¥ 
 		}
-		if(access(filename, 0)!=0)										 //¼ì²éÓÃ»§ÃûÊÇ·ñÒÑ´æÔÚ 
+		if(access(filename, 0)!=0)										 //æ£€æŸ¥ç”¨æˆ·åæ˜¯å¦å·²å­˜åœ¨ 
 		{
-			if((out=fopen(filename, "w"))!=NULL)						 //ĞÂ½¨ÒÔÓÃ»§ÃûÎªÃû³ÆµÄÎÄ¼ş²¢ÒÔĞ´ÈëÄ£Ê½´ò¿ª 
+			if((out=fopen(filename, "w"))!=NULL)						 //æ–°å»ºä»¥ç”¨æˆ·åä¸ºåç§°çš„æ–‡ä»¶å¹¶ä»¥å†™å…¥æ¨¡å¼æ‰“å¼€ 
 			{
-				fprintf(out, "%s", password2);							 //Ğ´ÈëÃÜÂë 
-				if(fclose(out)!=0)										 //·ÀÖ¹´íÎó¹Ø±Õ 
+				fprintf(out, "%s", password2);							 //å†™å…¥å¯†ç  
+				if(fclose(out)!=0)										 //é˜²æ­¢é”™è¯¯å…³é—­ 
 				{
 					fprintf(stderr, "system Error!\n");
 					return 0;
 				}
-				return 1;												 //×¢²á³É¹¦Ôò·µ»Ø1 
+				return 1;												 //æ³¨å†ŒæˆåŠŸåˆ™è¿”å›1 
 			}
 			else
 			{
@@ -249,16 +249,17 @@ int regis(int choice, char path[])
 	return 0;
 }
 
-//-------µÇÂ¼»úÖÆµÄ¾ßÌåÊµÏÖ--------- 
+//-------ç™»å½•æœºåˆ¶çš„å…·ä½“å®ç°--------- 
 int login(int choice, char path[])
 {
-	FILE *in;
-	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //×÷ÓÃÍ¬ÉÏ	  
+	
+	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //ä½œç”¨åŒä¸Š	  
 	char filename[MAX]={'\0'};
 	char verify[7]={'\0'}, veryfin[MAX]={'\0'};
 	int flag=0, value=1;
 	while(flag<4 && value)
 	{
+		FILE *in;
 		flag=4;
 		printf("All inputs shall not beyond 20 characters\n");
 		printf("Enter username:");
@@ -274,8 +275,8 @@ int login(int choice, char path[])
 			flag--;
 		}
 		printf("\nEnter verify code:");
-		strcpy(verify, randspawner());   								//ÑéÖ¤Âë»úÖÆ 
-		printf("%s", verify);
+		strcpy(verify, randspawner());   								//éªŒè¯ç æœºåˆ¶ 
+		printf("%s\n", verify);
 		if(!scanf("%s", veryfin))
 		{
 			printf("Illegal input!\n");
@@ -286,60 +287,73 @@ int login(int choice, char path[])
 			printf("Cannot be verified!\n");
 			flag--;
 		}
-	
-		strncpy(filename, path, strlen(path)-8);
-		if(choice==1)
+		else
 		{
-			strcat(filename, "accounts\\admin\\");
-			strcat(filename, username);
-			strcat(filename, ".acc");
-		}
-		else if(choice==2)
-		{
-			strcat(filename, "accounts\\user\\");
-			strcat(filename, username);
-			strcat(filename, ".acc");										//Æ´½ÓÎÄ¼şÂ·¾¶ 
-		}
-	
-		if((in=fopen(filename, "r"))!=NULL)									//ÊÔÍ¼¶ÁÈ¡ÓÃ»§ÃûËùÖ¸ÎÄ¼ş 
-		{
-			fscanf(in,"%s",password2);
-			if(strcmp(password1, password2)==0)								//ÃÜÂëÑéÖ¤ 
+			strncpy(filename, path, strlen(path)-8);
+			if(choice==1)
 			{
-				if(fclose(in)!=0)
+				strcat(filename, "accounts\\admin\\");
+				strcat(filename, username);
+				strcat(filename, ".acc");
+			}
+			else if(choice==2)
+			{
+				strcat(filename, "accounts\\user\\");
+				strcat(filename, username);
+				strcat(filename, ".acc");										//æ‹¼æ¥æ–‡ä»¶è·¯å¾„ 
+			}
+		
+			if((in=fopen(filename, "r"))!=NULL)									//è¯•å›¾è¯»å–ç”¨æˆ·åæ‰€æŒ‡æ–‡ä»¶ 
+			{
+				fscanf(in,"%s",password2);
+				if(strcmp(password1, password2)==0)								//å¯†ç éªŒè¯ 
 				{
-					fprintf(stderr, "system Error!\n");
-					return 0;
+					if(fclose(in)!=0)
+					{
+						fprintf(stderr, "system Error!\n");
+						return 0;
+					}							 
+					return 1;													//ç™»é™†æˆåŠŸï¼Œè¿”å›1			
 				}
-				printf("Login successfully!\n");							 
-				return 1;													//µÇÂ½³É¹¦£¬·µ»Ø1			
+				else
+				{
+				printf("Wrong password!\n");
+				}
 			}
 			else
 			{
-			printf("Wrong password!\n");
+				fprintf(stderr, "System Error!\n");
 			}
+			printf("Try again(1) or exit(0)?");
+			scanf("%d",&value);
 		}
-		else
+		if(value)
 		{
-			fprintf(stderr, "System Error!\n");
+			flag=0;
 		}
-		printf("Try again(1) or exit(0)?");
-		scanf("%d",&value);
 	
 	}
 	
 	return 0;		
 }
 
-//------Ëæ»úÊıÉú³ÉÆ÷--------
+//------éšæœºæ•°ç”Ÿæˆå™¨--------
 char *randspawner()
 {
-	int min=1, max=36, i;
+	int min=1, max=36, a, i;
 	static char code[7];
 	srand(time(0));
 	for(i=0;i<6;i++)
 	{
-		code[i]=char((max-min)*rand()/(RAND_MAX+1)+min);
+		a=(max-min)*rand()/(RAND_MAX+1)+min;
+		if(a<=10)
+		{
+			code[i]=a+47;
+		}
+		else
+		{
+			code[i]=a+54;
+		}
 	}
 	return code;
 } 
