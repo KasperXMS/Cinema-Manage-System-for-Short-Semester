@@ -1,4 +1,5 @@
 #include"reglog.h"
+#include"userchangeinfo.h"
 #define MAX 101
 
 //-----主函数-----
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])			//argv[0]包含了文件路径信息
 		else if(username[n-1]=='2')
 		{
 			username[n-1]='\0';
-			printf("用户\n"); 			 //管理员登录后界面接口 
+			changeInfo(argv[0], username); 			 //管理员登录后界面接口 
 		} 
 	}
 	return 0;
