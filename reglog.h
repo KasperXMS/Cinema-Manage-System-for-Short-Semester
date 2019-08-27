@@ -1,8 +1,8 @@
 /*
-µÇÂ¼Óë×¢²á½Ó¿Ú 
-Çëµ÷ÓÃWelcomeUI()º¯Êı×÷Îª½Ó¿Ú 
-×¢Òâ£ºÆô¶¯Ê±Ò»¶¨È·±£µ±Ç°Ä¿Â¼ÏÂÓĞ\accounts\adminºÍ\accounts\userÄ¿Â¼£¬·ñÔòÎŞ·¨Ğ´ÈëÓÃ»§ĞÅÏ¢ÎÄ¼ş£¡
-×îºó±à¼­ÓÚ2019-08-27 17:18 
+ç™»å½•ä¸æ³¨å†Œæ¥å£ 
+è¯·è°ƒç”¨WelcomeUI()å‡½æ•°ä½œä¸ºæ¥å£ 
+æ³¨æ„ï¼šå¯åŠ¨æ—¶ä¸€å®šç¡®ä¿å½“å‰ç›®å½•ä¸‹æœ‰\accounts\adminå’Œ\accounts\userç›®å½•ï¼Œå¦åˆ™æ— æ³•å†™å…¥ç”¨æˆ·ä¿¡æ¯æ–‡ä»¶ï¼
+æœ€åç¼–è¾‘äº2019-08-27 17:18 
 
 */
 
@@ -18,13 +18,13 @@
 
 #define MAX 101
 
-//-----¹¦ÄÜº¯ÊıÉùÃ÷Çø----- 
+//-----åŠŸèƒ½å‡½æ•°å£°æ˜åŒº----- 
 int regisUI(char path[]);
 int regis(int choice, char path[]);
 int loginUI(char path[]);
 int login(int choice, char path[]);
 
-//-----¸¨Öúº¯ÊıÉùÃ÷Çø-----
+//-----è¾…åŠ©å‡½æ•°å£°æ˜åŒº-----
 char *randspawner(); 
 
 int regisUI(char path[])
@@ -32,12 +32,12 @@ int regisUI(char path[])
 	int choice=0, flag=1;
 	while(flag)
 	{
-		printf("**********ĞÂÓÃ»§×¢²á**********\n");
-		printf("×¢²áÎª:\n");
-		printf("1. Ó°Ôº¹ÜÀíÔ±\n");
-		printf("2. ÆÕÍ¨ÓÃ»§\n");
-		printf("3. ·µ»Ø\n");
-		printf("ÇëÊäÈëÑ¡Ïî:\n");
+		printf("**********æ–°ç”¨æˆ·æ³¨å†Œ**********\n");
+		printf("æ³¨å†Œä¸º:\n");
+		printf("1. å½±é™¢ç®¡ç†å‘˜\n");
+		printf("2. æ™®é€šç”¨æˆ·\n");
+		printf("3. è¿”å›\n");
+		printf("è¯·è¾“å…¥é€‰é¡¹:\n");
 		scanf("%d", &choice);
 		switch(choice)
 		{
@@ -66,7 +66,7 @@ int regisUI(char path[])
 				}
 				break;
 			default:
-				printf("·Ç·¨ÊäÈë£¡\n");
+				printf("éæ³•è¾“å…¥ï¼\n");
 				
 		}
 	}
@@ -78,12 +78,12 @@ int loginUI(char path[])
 	int choice=0, flag=1;
 	while(flag)
 	{
-		printf("**********µÇÂ¼**********\n");
-		printf("ÇëÑ¡ÔñµÇÂ¼½ÇÉ«:\n");
-		printf("1. Ó°Ôº¹ÜÀíÔ±\n");
-		printf("2. ÆÕÍ¨ÓÃ»§\n");
-		printf("3. ·µ»Ø\n");
-		printf("ÇëÊäÈëÑ¡Ïî:\n");
+		printf("**********ç™»å½•**********\n");
+		printf("è¯·é€‰æ‹©ç™»å½•è§’è‰²:\n");
+		printf("1. å½±é™¢ç®¡ç†å‘˜\n");
+		printf("2. æ™®é€šç”¨æˆ·\n");
+		printf("3. è¿”å›\n");
+		printf("è¯·è¾“å…¥é€‰é¡¹:\n");
 		scanf("%d",&choice);
 		switch(choice)
 		{
@@ -92,54 +92,56 @@ int loginUI(char path[])
 				if(flag)
 				{
 					printf("Login successfully!\n");
-					return 2;							//»Ø´«ÖµÎª2Ôò´¥·¢»¶Ó­½çÃæº¯Êı½áÊø£¬½øÈëµÇÂ¼ºó½çÃæ 
+					return 2;							//å›ä¼ å€¼ä¸º2åˆ™è§¦å‘æ¬¢è¿ç•Œé¢å‡½æ•°ç»“æŸï¼Œè¿›å…¥ç™»å½•åç•Œé¢ 
 				}
 				else
 				{
 					printf("Login failed!\n");
 				}
+				break;
 			case 2:
 				flag=login(choice, path);
 				if(flag)
 				{
 					printf("Login successfully!\n");
-					return 2;							//»Ø´«ÖµÎª2Ôò´¥·¢»¶Ó­½çÃæº¯Êı½áÊø£¬½øÈëµÇÂ¼ºó½çÃæ 
+					return 2;							//å›ä¼ å€¼ä¸º2åˆ™è§¦å‘æ¬¢è¿ç•Œé¢å‡½æ•°ç»“æŸï¼Œè¿›å…¥ç™»å½•åç•Œé¢ 
 				}
 				else
 				{
 					printf("Login failed!\n");
 				}
+				break;
 			default:
-				printf("·Ç·¨ÊäÈë£¡\n");	
+				printf("éæ³•è¾“å…¥ï¼\n");	
 		}		
 	}
 	return 1;
 }
 
-//-----×¢²á»úÖÆµÄ¾ßÌåÊµÏÖ------ 
+//-----æ³¨å†Œæœºåˆ¶çš„å…·ä½“å®ç°------ 
 int regis(int choice, char path[])
 {
-	FILE *out;                                                           //ÉèÁ¢ÎÄ¼şÖ¸Õë 
-	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};    //³õÊ¼»¯ÓÃ»§ÃûÃÜÂë×Ö·û´® 
+	FILE *out;                                                           //è®¾ç«‹æ–‡ä»¶æŒ‡é’ˆ 
+	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};    //åˆå§‹åŒ–ç”¨æˆ·åå¯†ç å­—ç¬¦ä¸² 
 	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'}; 
-	char filename[MAX]={'\0'};  										 //³õÊ¼»¯ÎÄ¼şÃû×Ö·û´® 
-	int flag=1;                                                          //¿ØÖÆÑ­»· 
-	printf("ËùÓĞµÄÊäÈë²»Ó¦³¬¹ı20×Ö·û\n");               //¡°ËùÓĞµÄÊäÈë²»Ó¦³¬¹ı20×Ö·û¡± 
+	char filename[MAX]={'\0'};  										 //åˆå§‹åŒ–æ–‡ä»¶åå­—ç¬¦ä¸² 
+	int flag=1;                                                          //æ§åˆ¶å¾ªç¯ 
+	printf("æ‰€æœ‰çš„è¾“å…¥ä¸åº”è¶…è¿‡20å­—ç¬¦\n");               //â€œæ‰€æœ‰çš„è¾“å…¥ä¸åº”è¶…è¿‡20å­—ç¬¦â€ 
 	while(flag)
 	{
-		printf("ÊäÈëÓÃ»§Ãû:");
+		printf("è¾“å…¥ç”¨æˆ·å:");
 		scanf("%s", username);
-		printf("\nÊäÈëÃÜÂë:");
+		printf("\nè¾“å…¥å¯†ç :");
 		scanf("%s", password1);
-		printf("\nÔÙ´ÎÈ·ÈÏÃÜÂë:");
+		printf("\nå†æ¬¡ç¡®è®¤å¯†ç :");
 		scanf("%s", password2);
-		printf("\nÊäÈëĞÕÃû:");
+		printf("\nè¾“å…¥å§“å:");
 		scanf("%s", NAME);
-		printf("\nÊäÈëĞÔ±ğ:");
+		printf("\nè¾“å…¥æ€§åˆ«:");
 		scanf("%s", gender);
-		printf("\nÊäÈëµç»°ºÅÂë:");
+		printf("\nè¾“å…¥ç”µè¯å·ç :");
 		scanf("%s", tel);
-		printf("\nÊäÈëµç×ÓÓÊÏä:");
+		printf("\nè¾“å…¥ç”µå­é‚®ç®±:");
 		scanf("%s", email);
 		if(judgeUsername(username))
 		{
@@ -151,20 +153,20 @@ int regis(int choice, char path[])
 				}
 				else
 				{
-					printf("ÓÊÏä¸ñÊ½²»ÕıÈ·\n");
+					printf("é‚®ç®±æ ¼å¼ä¸æ­£ç¡®\n");
 				}
 			}
 			else
 			{
-				printf("µç»°¸ñÊ½²»ÕıÈ·\n");
+				printf("ç”µè¯æ ¼å¼ä¸æ­£ç¡®\n");
 			}
 		}
 		else
 		{
-			printf("ÓÃ»§Ãû¸ñÊ½²»ÕıÈ·\n"); 
+			printf("ç”¨æˆ·åæ ¼å¼ä¸æ­£ç¡®\n"); 
 		}
 		 
-	}                 												 //²½Öè¾ùÎŞÎÊÌâ·½¿ÉÌø³öÑ­»· 
+	}                 												 //æ­¥éª¤å‡æ— é—®é¢˜æ–¹å¯è·³å‡ºå¾ªç¯ 
 	
 	if(strcmp(password1,password2)==0)
 	{
@@ -179,11 +181,11 @@ int regis(int choice, char path[])
 		{
 			strcat(filename, "accounts\\user\\");
 			strcat(filename, username);
-			strcat(filename, ".acc");                                    //ÎÄ¼şÂ·¾¶ÃûÆ´½Ó 
+			strcat(filename, ".acc");                                    //æ–‡ä»¶è·¯å¾„åæ‹¼æ¥ 
 		}
-		if(access(filename, 0)!=0)										 //¼ì²éÓÃ»§ÃûÊÇ·ñÒÑ´æÔÚ 
+		if(access(filename, 0)!=0)										 //æ£€æŸ¥ç”¨æˆ·åæ˜¯å¦å·²å­˜åœ¨ 
 		{
-			if((out=fopen(filename, "w"))!=NULL)						 //ĞÂ½¨ÒÔÓÃ»§ÃûÎªÃû³ÆµÄÎÄ¼ş²¢ÒÔĞ´ÈëÄ£Ê½´ò¿ª 
+			if((out=fopen(filename, "w"))!=NULL)						 //æ–°å»ºä»¥ç”¨æˆ·åä¸ºåç§°çš„æ–‡ä»¶å¹¶ä»¥å†™å…¥æ¨¡å¼æ‰“å¼€ 
 			{
 				fprintf(out, "%s\n", username);							  
 				fprintf(out, "%s\n", NAME);
@@ -192,12 +194,12 @@ int regis(int choice, char path[])
 				fprintf(out, "%s\n", password2);
 				fprintf(out, "%s\n", email);
 				fprintf(out, "%lf\n", 0.00);
-				if(fclose(out)!=0)										 //·ÀÖ¹´íÎó¹Ø±Õ 
+				if(fclose(out)!=0)										 //é˜²æ­¢é”™è¯¯å…³é—­ 
 				{
 					fprintf(stderr, "system Error!\n");
 					return 0;
 				}
-				return 1;												 //×¢²á³É¹¦Ôò·µ»Ø1 
+				return 1;												 //æ³¨å†ŒæˆåŠŸåˆ™è¿”å›1 
 			}
 			else
 			{
@@ -219,11 +221,11 @@ int regis(int choice, char path[])
 	return 0;
 }
 
-//-------µÇÂ¼»úÖÆµÄ¾ßÌåÊµÏÖ--------- 
+//-------ç™»å½•æœºåˆ¶çš„å…·ä½“å®ç°--------- 
 int login(int choice, char path[])
 {
 	
-	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //×÷ÓÃÍ¬ÉÏ	  
+	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //ä½œç”¨åŒä¸Š	  
 	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'};
 	char filename[MAX]={'\0'};
 	char verify[7]={'\0'}, veryfin[MAX]={'\0'};
@@ -233,18 +235,18 @@ int login(int choice, char path[])
 	{
 		FILE *in;
 		flag=4;
-		printf("ËùÓĞµÄÊäÈë²»Ó¦³¬¹ı20×Ö·û\n");
-		printf("ÊäÈëÓÃ»§Ãû:");
+		printf("æ‰€æœ‰çš„è¾“å…¥ä¸åº”è¶…è¿‡20å­—ç¬¦\n");
+		printf("è¾“å…¥ç”¨æˆ·å:");
 		scanf("%s",username);
-		printf("\nÊäÈëÃÜÂë:");
+		printf("\nè¾“å…¥å¯†ç :");
 		scanf("%s",password1);
-		printf("\nÊäÈëÑéÖ¤Âë:");
-		strcpy(verify, randspawner());   								//ÑéÖ¤Âë»úÖÆ 
+		printf("\nè¾“å…¥éªŒè¯ç :");
+		strcpy(verify, randspawner());   								//éªŒè¯ç æœºåˆ¶ 
 		printf("%s\n", verify);
 		scanf("%s", veryfin);
 		if(strcmp(verify, veryfin)!=0)
 		{
-			printf("ÑéÖ¤Î´Í¨¹ı!\n");
+			printf("éªŒè¯æœªé€šè¿‡!\n");
 			flag--;
 		}
 		else
@@ -260,10 +262,10 @@ int login(int choice, char path[])
 			{
 				strcat(filename, "accounts\\user\\");
 				strcat(filename, username);
-				strcat(filename, ".acc");										//Æ´½ÓÎÄ¼şÂ·¾¶ 
+				strcat(filename, ".acc");										//æ‹¼æ¥æ–‡ä»¶è·¯å¾„ 
 			}
 		
-			if((in=fopen(filename, "r"))!=NULL)									//ÊÔÍ¼¶ÁÈ¡ÓÃ»§ÃûËùÖ¸ÎÄ¼ş 
+			if((in=fopen(filename, "r"))!=NULL)									//è¯•å›¾è¯»å–ç”¨æˆ·åæ‰€æŒ‡æ–‡ä»¶ 
 			{
 				fscanf(in, "%s", username);							  
 				fscanf(in, "%s", NAME);
@@ -272,14 +274,14 @@ int login(int choice, char path[])
 				fscanf(in, "%s", password2);
 				fscanf(in, "%s", email);
 				fscanf(in, "%lf", &remain);
-				if(strcmp(password1, password2)==0)								//ÃÜÂëÑéÖ¤ 
+				if(strcmp(password1, password2)==0)								//å¯†ç éªŒè¯ 
 				{
 					if(fclose(in)!=0)
 					{
 						fprintf(stderr, "system Error!\n");
 						return 0;
 					}							 
-					return 1;													//µÇÂ½³É¹¦£¬·µ»Ø1			
+					return 1;													//ç™»é™†æˆåŠŸï¼Œè¿”å›1			
 				}
 				else
 				{
@@ -303,7 +305,7 @@ int login(int choice, char path[])
 	return 0;		
 }
 
-//------Ëæ»úÊıÉú³ÉÆ÷--------
+//------éšæœºæ•°ç”Ÿæˆå™¨--------
 char *randspawner()
 {
 	int min=1, max=36, a, i;
@@ -330,11 +332,11 @@ int WelcomeUI(char path[])
 	int choice=0;
 	while(value==1)
 	{
-		printf("*********»¶Ó­**********\n");
-		printf("1. µÇÂ¼ÒÑÓĞÕËºÅ\n");
-		printf("2. ×¢²áĞÂÕËºÅ\n");
-		printf("3. ÍË³öÏµÍ³\n");
-		printf("ÇëÊäÈëÑ¡Ïî:");
+		printf("*********æ¬¢è¿**********\n");
+		printf("1. ç™»å½•å·²æœ‰è´¦å·\n");
+		printf("2. æ³¨å†Œæ–°è´¦å·\n");
+		printf("3. é€€å‡ºç³»ç»Ÿ\n");
+		printf("è¯·è¾“å…¥é€‰é¡¹:");
 		scanf("%d", &choice);
 		switch(choice)
 		{
@@ -348,11 +350,11 @@ int WelcomeUI(char path[])
 				value=0;
 				break;
 			default:
-				printf("·Ç·¨ÊäÈë!\n");
+				printf("éæ³•è¾“å…¥!\n");
 		}
 		
 	}
-	return value;							//0-ÍÆ³ö  2-µÇÂ¼ÒÑ³É¹¦£¬½øÈëµÇÂ½ºó½çÃæ 
+	return value;							//0-æ¨å‡º  2-ç™»å½•å·²æˆåŠŸï¼Œè¿›å…¥ç™»é™†åç•Œé¢ 
 }
 
 #endif
