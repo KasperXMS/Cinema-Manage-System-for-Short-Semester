@@ -1,19 +1,28 @@
 #include"reglog.h"
+#define MAX 101
 
-//-----Ö÷º¯Êı-----
-int main(int argc, char *argv[])			//argv[0]°üº¬ÁËÎÄ¼şÂ·¾¶ĞÅÏ¢ 
+//-----ä¸»å‡½æ•°-----
+int main(int argc, char *argv[])			//argv[0]åŒ…å«äº†æ–‡ä»¶è·¯å¾„ä¿¡æ¯ 
 {
-	switch(WelcomeUI(argv[0]))
+	char username[MAX]={'\0'};
+	strcpy(username, WelcomeUI(argv[0]));
+	int n=strlen(username);	
+	if(strcmp(username, "FAIL")==0)
 	{
-		case 0:
-			printf("ÍË³öÖĞ\n");
-			break;
-		case 2:
-			printf("Experimental Page. Login action passed successfully!\n");
-			printf("Later functons are under development. Coming soon.\n");			//½Ó¿ÚÔ¤Áô´¦ 
-			break;
-		default:
-			printf("Something wrong occured.\n");
+		printf("é€€å‡ºä¸­\n");
+	}
+	else
+	{
+		if(username[n-1]=='1')
+		{
+			username[n-1]='\0';
+			printf("ç®¡ç†å‘˜\n");                //ç”¨æˆ·ç™»é™†åç•Œé¢æ¥å£ 
+		}
+		else if(username[n-1]=='2')
+		{
+			username[n-1]='\0';
+			printf("ç”¨æˆ·\n"); 			 //ç®¡ç†å‘˜ç™»å½•åç•Œé¢æ¥å£ 
+		} 
 	}
 	return 0;
 }
