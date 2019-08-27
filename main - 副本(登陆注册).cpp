@@ -1,10 +1,6 @@
 /*
-初版登录界面 
-最后编辑于2019-08-26 23:24 
-目前未发现文件读写的问题，注册登录模块容错性足矣 
-菜单非法输入仍会导致死循环bug 
-下一步将改成长字符串输入形式以缓冲非法输入的破坏性 
-未完成用户完整信息的录入功能 
+登录界面 
+最后编辑于2019-08-27 11:02  
  
  注意：启动时一定确保当前目录下有\accounts\admin和\accounts\user目录，否则无法写入用户信息文件！ 
 
@@ -15,6 +11,7 @@
 #include<string.h>
 #include<io.h>
 #include<time.h>
+#include"judge.h"
 
 #define MAX 101
 
@@ -34,32 +31,27 @@ int WelcomeUI(char path[])
 	int choice=0;
 	while(value==1)
 	{
-		printf("*********Welcome**********\n");
-		printf("1. Login\n");
-		printf("2. Register\n");
-		printf("3. Exit\n");
-		printf("enter option:");
-		if(!scanf("%d",&choice))
+		printf("*********欢迎**********\n");
+		printf("1. 登录已有账号\n");
+		printf("2. 注册新账号\n");
+		printf("3. 退出系统\n");
+		printf("请输入选项:");
+		scanf("%d", &choice);
+		switch(choice)
 		{
-			printf("Input error!\n");				//已知此处有非法输入死循环bug 
+			case 1:
+				value=loginUI(path);
+				break;
+			case 2:
+				value=regisUI(path);
+				break;
+			case 3:
+				value=0;
+				break;
+			default:
+				printf("非法输入!\n");
 		}
-		else
-		{
-			switch(choice)
-			{
-				case 1:
-					value=loginUI(path);
-					break;
-				case 2:
-					value=regisUI(path);
-					break;
-				case 3:
-					value=0;
-					break;
-				default:
-					printf("Illegal input!\n");
-			}
-		}
+		
 	}
 	return value;							//0-推出  2-登录已成功，进入登陆后界面 
 };
@@ -70,7 +62,7 @@ int main(int argc, char *argv[])			//argv[0]包含了文件路径信息
 	switch(WelcomeUI(argv[0]))
 	{
 		case 0:
-			printf("Exit\n");
+			printf("退出中\n");
 			break;
 		case 2:
 			printf("Experimental Page. Login action passed successfully!\n");
@@ -87,21 +79,16 @@ int regisUI(char path[])
 	int choice=0, flag=1;
 	while(flag)
 	{
-		printf("**********Register**********\n");
-		printf("Register as:\n");
-		printf("1. Administrator\n");
-		printf("2. User\n");
-		printf("3. Back\n");
-		printf("Enter option:\n");
-		if(!scanf("%d",&choice))								//此处鲁棒性良好 
+		printf("**********新用户注册**********\n");
+		printf("注册为:\n");
+		printf("1. 影院管理员\n");
+		printf("2. 普通用户\n");
+		printf("3. 返回\n");
+		printf("请输入选项:\n");
+		scanf("%d", &choice);
+		switch(choice)
 		{
-			printf("Input error!\n");
-			flag=0;
-		}
-		else
-		{
-			if(choice==1 || choice==2)
-			{
+			case 1:
 				flag=regis(choice, path);
 				if(flag)
 				{
@@ -112,17 +99,23 @@ int regisUI(char path[])
 				{
 					printf("Register failed!\n");
 				}
-			}
-			else if(choice==3)
-			{
-				flag=0;
-			}
-			else
-			{
-				printf("Illegal input!\n");
-			}
+				break;
+			case 2:
+				flag=regis(choice, path);
+				if(flag)
+				{
+					printf("Register successfully!\n");
+					return 1;
+				}
+				else
+				{
+					printf("Register failed!\n");
+				}
+				break;
+			default:
+				printf("非法输入！\n");
+				
 		}
-		
 	}
 	return 1;
 }
@@ -132,21 +125,16 @@ int loginUI(char path[])
 	int choice=0, flag=1;
 	while(flag)
 	{
-		printf("**********Login**********\n");
-		printf("Login as:\n");
-		printf("1. Administrator\n");
-		printf("2. User\n");
-		printf("3. Back\n");
-		printf("Enter option:\n");
-		if(!scanf("%d",&choice))
+		printf("**********登录**********\n");
+		printf("请选择登录角色:\n");
+		printf("1. 影院管理员\n");
+		printf("2. 普通用户\n");
+		printf("3. 返回\n");
+		printf("请输入选项:\n");
+		scanf("%d",&choice);
+		switch(choice)
 		{
-			printf("Input error!\n");
-			flag=0;
-		}
-		else
-		{
-			if(choice==1 || choice==2)
-			{
+			case 1:
 				flag=login(choice, path);
 				if(flag)
 				{
@@ -157,16 +145,20 @@ int loginUI(char path[])
 				{
 					printf("Login failed!\n");
 				}
-			}
-			else if(choice==3)
-			{
-				flag=0;
-			}
-			else
-			{
-				printf("Illegal input!\n");
-			}
-		}	
+			case 2:
+				flag=login(choice, path);
+				if(flag)
+				{
+					printf("Login successfully!\n");
+					return 2;							//回传值为2则触发欢迎界面函数结束，进入登录后界面 
+				}
+				else
+				{
+					printf("Login failed!\n");
+				}
+			default:
+				printf("非法输入！\n");	
+		}		
 	}
 	return 1;
 }
@@ -176,31 +168,50 @@ int regis(int choice, char path[])
 {
 	FILE *out;                                                           //设立文件指针 
 	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};    //初始化用户名密码字符串 
+	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'}; 
 	char filename[MAX]={'\0'};  										 //初始化文件名字符串 
-	int flag=0;                                                          //控制循环 
-	printf("All inputs shall not beyond 20 characters\n");               //“所有的输入不应超过20字符” 
-	printf("Enter username:");
-	while(flag<3)
+	int flag=1;                                                          //控制循环 
+	printf("所有的输入不应超过20字符\n");               //“所有的输入不应超过20字符” 
+	while(flag)
 	{
-		flag=3;
-		if(!scanf("%s",username))                                        //防出错 
+		printf("输入用户名:");
+		scanf("%s", username);
+		printf("\n输入密码:");
+		scanf("%s", password1);
+		printf("\n再次确认密码:");
+		scanf("%s", password2);
+		printf("\n输入姓名:");
+		scanf("%s", NAME);
+		printf("\n输入性别:");
+		scanf("%s", gender);
+		printf("\n输入电话号码:");
+		scanf("%s", tel);
+		printf("\n输入电子邮箱:");
+		scanf("%s", email);
+		if(judgeUsername(username))
 		{
-			printf("Illegal input!\n");
-			flag--;
+			if(judgeTel(tel))
+			{
+				if(judgeEmail(email))
+				{
+					flag=0;
+				}
+				else
+				{
+					printf("邮箱格式不正确\n");
+				}
+			}
+			else
+			{
+				printf("电话格式不正确\n");
+			}
 		}
-		printf("\nEnter password:");
-		if(!scanf("%s",password1))
+		else
 		{
-			printf("Illegal input!\n");
-			flag--;
+			printf("用户名格式不正确\n"); 
 		}
-		printf("\nConfirm password:");
-		if(!scanf("%s",password2))
-		{
-			printf("Illlegal input!\n");
-			flag--;
-		}
-	}                     												 //步骤均无问题方可跳出循环 
+		 
+	}                 												 //步骤均无问题方可跳出循环 
 	
 	if(strcmp(password1,password2)==0)
 	{
@@ -221,7 +232,13 @@ int regis(int choice, char path[])
 		{
 			if((out=fopen(filename, "w"))!=NULL)						 //新建以用户名为名称的文件并以写入模式打开 
 			{
-				fprintf(out, "%s", password2);							 //写入密码 
+				fprintf(out, "%s\n", username);							  
+				fprintf(out, "%s\n", NAME);
+				fprintf(out, "%s\n", gender);
+				fprintf(out, "%s\n", tel);
+				fprintf(out, "%s\n", password2);
+				fprintf(out, "%s\n", email);
+				fprintf(out, "%lf\n", 0.00);
 				if(fclose(out)!=0)										 //防止错误关闭 
 				{
 					fprintf(stderr, "system Error!\n");
@@ -254,37 +271,27 @@ int login(int choice, char path[])
 {
 	
 	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //作用同上	  
+	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'};
 	char filename[MAX]={'\0'};
 	char verify[7]={'\0'}, veryfin[MAX]={'\0'};
+	double remain=0.00;
 	int flag=0, value=1;
 	while(flag<4 && value)
 	{
 		FILE *in;
 		flag=4;
-		printf("All inputs shall not beyond 20 characters\n");
-		printf("Enter username:");
-		if(!scanf("%s",username))
-		{
-			printf("Illegal input!\n");
-			flag--;
-		}
-		printf("\nEnter password:");
-		if(!scanf("%s",password1))
-		{
-			printf("Illegal input!\n");
-			flag--;
-		}
-		printf("\nEnter verify code:");
+		printf("所有的输入不应超过20字符\n");
+		printf("输入用户名:");
+		scanf("%s",username);
+		printf("\n输入密码:");
+		scanf("%s",password1);
+		printf("\n输入验证码:");
 		strcpy(verify, randspawner());   								//验证码机制 
 		printf("%s\n", verify);
-		if(!scanf("%s", veryfin))
-		{
-			printf("Illegal input!\n");
-			flag--;
-		}
+		scanf("%s", veryfin);
 		if(strcmp(verify, veryfin)!=0)
 		{
-			printf("Cannot be verified!\n");
+			printf("验证未通过!\n");
 			flag--;
 		}
 		else
@@ -305,7 +312,13 @@ int login(int choice, char path[])
 		
 			if((in=fopen(filename, "r"))!=NULL)									//试图读取用户名所指文件 
 			{
-				fscanf(in,"%s",password2);
+				fscanf(in, "%s", username);							  
+				fscanf(in, "%s", NAME);
+				fscanf(in, "%s", gender);
+				fscanf(in, "%s", tel);
+				fscanf(in, "%s", password2);
+				fscanf(in, "%s", email);
+				fscanf(in, "%lf", &remain);
 				if(strcmp(password1, password2)==0)								//密码验证 
 				{
 					if(fclose(in)!=0)
