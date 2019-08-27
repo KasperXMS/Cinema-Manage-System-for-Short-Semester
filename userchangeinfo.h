@@ -13,13 +13,13 @@ void changeInfo(char path[], char username[])
 	char password[MAX]={'\0'};
 	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'};
 	double remain=0.00;
-	char filename[255];
+	char filename[255]={'\0'};
 	int choice = 0, flag = 1; 
 	char newPassword1[MAX], newPassword2[MAX], newTel[MAX], newEmail[MAX];
 	
-	strncpy(filename, path, strlen(path) - 8);//copy, 14ÊÇ³ÌĞòÃûÎ»Êı¼ÓÉÏ.exeµÄÎ»Êı 
+	strncpy(filename, path, strlen(path) - 8);//copy, 14æ˜¯ç¨‹åºåä½æ•°åŠ ä¸Š.exeçš„ä½æ•° 
 	strcat(filename, "accounts\\user\\");
-	strcat(filename, username);//Æ´½Ó
+	strcat(filename, username);//æ‹¼æ¥
 	strcat(filename, ".acc");
 	in = fopen(filename, "r");
 	
@@ -33,11 +33,11 @@ void changeInfo(char path[], char username[])
 	
 	while (flag)
 	{
-		printf("ÇëÑ¡Ôñ£º\n");
-		printf("1. ĞŞ¸ÄÃÜÂë\n");
-		printf("2. ĞŞ¸Äµç»°\n");
-		printf("3. ĞŞ¸ÄÓÊÏä\n");
-		printf("4. ·µ»Ø\n");
+		printf("è¯·é€‰æ‹©ï¼š\n");
+		printf("1. ä¿®æ”¹å¯†ç \n");
+		printf("2. ä¿®æ”¹ç”µè¯\n");
+		printf("3. ä¿®æ”¹é‚®ç®±\n");
+		printf("4. è¿”å›\n");
 		scanf("%d", &choice);
 		
 		switch(choice)
@@ -46,9 +46,9 @@ void changeInfo(char path[], char username[])
 					flag = 1;
 					while(flag)
 					{
-						printf("ÇëÊäÈëĞÂÃÜÂë£º\n" );
+						printf("è¯·è¾“å…¥æ–°å¯†ç ï¼š\n" );
 						scanf("%s" , newPassword1);
-						printf("ÇëÔÙ´ÎÈ·ÈÏĞÂÃÜÂë£º\n");
+						printf("è¯·å†æ¬¡ç¡®è®¤æ–°å¯†ç ï¼š\n");
 						scanf("%s", newPassword2);
 						if (strcmp(newPassword1, newPassword2) == 0)
 						{
@@ -57,22 +57,22 @@ void changeInfo(char path[], char username[])
 								if (strcmp(newPassword1, password) != 0)
 								{
 									strcpy(password, newPassword1);
-									printf("ĞŞ¸Ä³É¹¦£¡\n");
+									printf("ä¿®æ”¹æˆåŠŸï¼\n");
 									flag = 0;
 								}
 								else
 								{
-									printf("²»ÄÜÓëÔ­ÃÜÂëÏàÍ¬\n");
+									printf("ä¸èƒ½ä¸åŸå¯†ç ç›¸åŒ\n");
 								}
 							}
 							else
 							{
-								printf("·Ç·¨ÊäÈë£¡\n");
+								printf("éæ³•è¾“å…¥ï¼\n");
 							}
 						}
 						else
 						{
-							printf("Á½´ÎÃÜÂë²»Ò»ÖÂÇëÖØĞÂÊäÈë\n"); 
+							printf("ä¸¤æ¬¡å¯†ç ä¸ä¸€è‡´è¯·é‡æ–°è¾“å…¥\n"); 
 						}
 					}
 					flag = 1;
@@ -81,24 +81,24 @@ void changeInfo(char path[], char username[])
 					flag = 1;
 					while(flag)
 					{
-						printf("ÇëÊäÈëĞÂµÄµç»°:\n");
+						printf("è¯·è¾“å…¥æ–°çš„ç”µè¯:\n");
 						scanf("%s", newTel);
 						if (judgeTel(newTel) == 1)
 						{
 							if (strcmp(newTel, tel) != 0)
 							{
 								strcpy(tel, newTel);
-								printf("ĞŞ¸Ä³É¹¦£¡\n"); 
+								printf("ä¿®æ”¹æˆåŠŸï¼\n"); 
 								flag = 0;
 							}
 							else
 							{
-								printf("²»ÄÜÓëÔ­µç»°ÏàÍ¬\n");
+								printf("ä¸èƒ½ä¸åŸç”µè¯ç›¸åŒ\n");
 							}
 						}
 						else
 						{
-							printf("·Ç·¨ÊäÈë£¡\n");
+							printf("éæ³•è¾“å…¥ï¼\n");
 						}
 					}
 					flag = 1;
@@ -107,24 +107,24 @@ void changeInfo(char path[], char username[])
 					flag = 1;
 					while(flag)
 					{
-						printf("ÇëÊäÈëĞÂµÄÓÊÏä£º\n");
+						printf("è¯·è¾“å…¥æ–°çš„é‚®ç®±ï¼š\n");
 						scanf("%s", newEmail);
 						if (judgeEmail(newEmail) == 1)
 						{
 							if (strcmp(email, newEmail) != 0)
 							{
 								strcpy(email, newEmail);
-								printf("ĞŞ¸Ä³É¹¦£¡\n");
+								printf("ä¿®æ”¹æˆåŠŸï¼\n");
 								flag = 0;
 							}
 							else
 							{
-								printf("²»ÄÜÓëÔ­ÓÊÏäÏàÍ¬\n");
+								printf("ä¸èƒ½ä¸åŸé‚®ç®±ç›¸åŒ\n");
 							}
 						}
 						else
 						{
-							printf("·Ç·¨ÊäÈë£¡\n");
+							printf("éæ³•è¾“å…¥ï¼\n");
 						}
 					}
 					flag = 1;
@@ -133,7 +133,7 @@ void changeInfo(char path[], char username[])
 					flag = 0;
 					break;
 			default:
-					printf("·Ç·¨ÊäÈë£¡\n");
+					printf("éæ³•è¾“å…¥ï¼\n");
 		}
 		fclose(in);
 		if((out = fopen(filename, "w+"))!=NULL){
