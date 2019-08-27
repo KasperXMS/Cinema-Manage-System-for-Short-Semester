@@ -21,8 +21,8 @@
 //-----功能函数声明区----- 
 int regisUI(char path[]);
 int regis(int choice, char path[]);
-int loginUI(char path[]);
-int login(int choice, char path[]);
+char *loginUI(char path[]);
+char *login(int choice, char path[]);
 
 //-----辅助函数声明区-----
 char *randspawner(); 
@@ -65,6 +65,9 @@ int regisUI(char path[])
 					printf("Register failed!\n");
 				}
 				break;
+			case 3:
+				flag=0;
+				break;
 			default:
 				printf("非法输入！\n");
 				
@@ -73,9 +76,10 @@ int regisUI(char path[])
 	return 1;
 }
 
-int loginUI(char path[])
+char *loginUI(char path[])
 {
 	int choice=0, flag=1;
+	static char username[MAX]={'\0'}, fail[5]="FAIL";
 	while(flag)
 	{
 		printf("**********登录**********\n");
@@ -88,11 +92,12 @@ int loginUI(char path[])
 		switch(choice)
 		{
 			case 1:
-				flag=login(choice, path);
-				if(flag)
+				strcpy(username, login(choice, path));
+				if(strcmp(username, "FAIL")!=0)
 				{
 					printf("Login successfully!\n");
-					return 2;							//回传值为2则触发欢迎界面函数结束，进入登录后界面 
+					strcat(username, "1");
+					return username;							//回传值为2则触发欢迎界面函数结束，进入登录后界面 
 				}
 				else
 				{
@@ -100,22 +105,26 @@ int loginUI(char path[])
 				}
 				break;
 			case 2:
-				flag=login(choice, path);
-				if(flag)
+				strcpy(username, login(choice, path));
+				if(strcmp(username, "FAIL")!=0)
 				{
 					printf("Login successfully!\n");
-					return 2;							//回传值为2则触发欢迎界面函数结束，进入登录后界面 
+					strcat(username, "2");
+					return username;							//回传值为2则触发欢迎界面函数结束，进入登录后界面 
 				}
 				else
 				{
 					printf("Login failed!\n");
 				}
 				break;
+			case 3:
+				flag=0;
+				break;
 			default:
 				printf("非法输入！\n");	
 		}		
 	}
-	return 1;
+	return fail;
 }
 
 //-----注册机制的具体实现------ 
@@ -222,10 +231,11 @@ int regis(int choice, char path[])
 }
 
 //-------登录机制的具体实现--------- 
-int login(int choice, char path[])
+char *login(int choice, char path[])
 {
 	
-	char username[MAX], password1[MAX]={'\0'}, password2[MAX]={'\0'};   //作用同上	  
+	static char username[MAX]={'\0'}, fail[5]="FAIL";
+	char password1[MAX]={'\0'}, password2[MAX]={'\0'};   //作用同上	  
 	char NAME[MAX]={'\0'}, gender[10]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'};
 	char filename[MAX]={'\0'};
 	char verify[7]={'\0'}, veryfin[MAX]={'\0'};
@@ -279,9 +289,9 @@ int login(int choice, char path[])
 					if(fclose(in)!=0)
 					{
 						fprintf(stderr, "system Error!\n");
-						return 0;
+						return fail;
 					}							 
-					return 1;													//登陆成功，返回1			
+					return username;													//登陆成功，返回1			
 				}
 				else
 				{
@@ -302,7 +312,7 @@ int login(int choice, char path[])
 	
 	}
 	
-	return 0;		
+	return fail;		
 }
 
 //------随机数生成器--------
@@ -326,10 +336,11 @@ char *randspawner()
 	return code;
 }
 
-int WelcomeUI(char path[])
+char *WelcomeUI(char path[])
 {
 	int value=1;
 	int choice=0;
+	static char username[MAX]={'\0'};
 	while(value==1)
 	{
 		printf("*********欢迎**********\n");
@@ -341,20 +352,29 @@ int WelcomeUI(char path[])
 		switch(choice)
 		{
 			case 1:
-				value=loginUI(path);
+				strcpy(username, loginUI(path));
+				if(strcmp(username, "FAIL")==0)
+				{
+					value=1;
+				}
+				else
+				{
+					value=2;
+				}
 				break;
 			case 2:
 				value=regisUI(path);
 				break;
 			case 3:
 				value=0;
+				strcpy(username, "FAIL");
 				break;
 			default:
 				printf("非法输入!\n");
 		}
 		
 	}
-	return value;							//0-推出  2-登录已成功，进入登陆后界面 
+	return username;							//0-推出  2-登录已成功，进入登陆后界面 
 }
 
 #endif
