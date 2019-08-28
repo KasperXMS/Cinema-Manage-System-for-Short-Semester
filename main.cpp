@@ -58,8 +58,64 @@ void adminUI(char path[], char username[])
 			case 1:
 				break;
 			case 2:
+				{
+					int flaga2=1;
+					while(flaga2)
+					{
+						int choicea2=0;
+						printf("**********影厅管理**********\n");
+						printf("1. 影厅查询\n");
+						printf("2. 添加场次\n");
+						printf("3. 返回;");
+						printf("请输入选项：");
+						scanf("%d",&choicea2);
+						switch(choicea2)
+						{
+							case 1:
+								find_studio_info(path);
+								break;
+							case 2:
+								studio_info(path);
+								break;
+							case 3:
+								flaga2=0;
+								break;
+							default:
+								printf("非法输入！\n");
+						} 
+					}
+				}
+				
 				break;
 			case 3:
+				{
+					int flaga3=1;
+					while(flaga3)
+					{
+						int choicea3=0;
+						printf("**********场次管理**********\n");
+						printf("1. 场次查询\n");
+						printf("2. 添加场次\n");
+						printf("3. 返回\n");
+						printf("请输入选项：");
+						scanf("%d", &choicea3);
+						switch(choicea3)
+						{
+							case 1:
+								find_session_info(path);
+								break;
+							case 2:
+								add_session_info(path);
+								break;
+							case 3:
+								flaga3=0;
+								break;
+							default:
+								printf("非法输入！\n");
+						}
+					}
+				}
+				
 				break;
 			case 4:
 				Changeinfo(path, username);
