@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 #define FALSE 0
 #define TRUE 1
 #define MAXSIZE 32
@@ -20,8 +21,7 @@ typedef struct Order{  //订单信息
     int num;                    //订单编号
     char MovName[MAXSIZE];      //影片名称
     char CinName[MAXSIZE];      //影院名称
-    char MovieRoom[MAXSIZE];    //影厅
-    int seat[2][2];             //订单座位信息
+    int seat[3][2];             //订单座位信息
     int SeatNum;                //订单座位个数
     int Hour;                   //下单时间
     int Min;
@@ -32,31 +32,26 @@ typedef struct Order{  //订单信息
     int MoneyAccount;           //账户余额
 }Order;
 
-void OrderTicket(Order tp,int OrderNum);
+int FindOrder(char id[]);                            //查询账户订单
+int ReadOrder(char id[],Order temp[],int OrderNum);  //读取订单信息
+bool _is_Time_Conflict(char moviename[]);
+void SerchMovie(char Movname[],char Cinname[]);      //查询影片场次
+void OrderTicket(Order tp,int OrderNum);             //将订单写入文件
+int DeleteOrder(char id[],Order temp[],int OrderNum);//删除订单
 Order OrderInfo(void);
-int ReadOrder(char id[],Order temp[],int OrderNum);
-void DeleteOrder(Order temp[]);
 
-Order OrderInfo(void){
-    Order tp;
-    int i;
-    printf("请输入用户ID:");
-    gets(tp.ID);
-    printf("请输入影院名称:");
-    gets(tp.CinName);
-    printf("请输入影片名称:");
-    gets(tp.MovName);
-    printf("请输入预订的座位数:");
-    scanf("%d",&tp.SeatNum);
-    printf("请输入座位号:");
-    for(i=0;i<tp.SeatNum;i++){
-        scanf("%d%d",&tp.seat[i][0],&tp.seat[i][1]);
-    }
-    getchar();
-    return tp;
+int FindOrder(char id[]){
+    char filename[MAXSIZE];
+    strcpy(filename,id);
+    strcat(filename,".txt");
+    
+    FILE *fp;
+    if((fp=fopen(filename,"r"))==NULL)
+        return 0;
+    return 1;
 }
 
-int ReadOrder(char id[],Order temp[],int OrderNum){  //将Order_Ticket.txt文件中的订单信息写入temp数组中
+int ReadOrder(char id[],Order temp[],int OrderNum){  //将文件中的订单信息写入temp数组中
     int i=OrderNum;
     char FileName[MAXSIZE];
     strcpy(FileName,id);
@@ -85,7 +80,7 @@ int ReadOrder(char id[],Order temp[],int OrderNum){  //将Order_Ticket.txt文件
     return i;
 }
 
-void OrderTicket(Order tp,int OrderNum){
+void OrderTicket(Order tp,int OrderNum){               //将订单信息写入文件中
     int i,j,flag=1;
     char FileName[MAXSIZE];
     Order temp[100];
@@ -113,8 +108,8 @@ void OrderTicket(Order tp,int OrderNum){
     for(int i=0;i<OrderNum;i++)
         if(temp[i].num>NewOrder.num)
             NewOrder.num=temp[i].num;
-    NewOrder.num++;
-    if(tp.SeatNum<=3&&NewOrder.MovieNum<=5){          //每个人最多预订三个座位，最多五个场次
+    NewOrder.num++;                                     //按下单顺序排订单编号
+    if(tp.SeatNum<=3&&NewOrder.MovieNum<=5){            //每个人最多预订三个座位，最多五个场次
         for(i=0;i<tp.SeatNum;i++){
             for(j=0;j<2;j++){
                 if(tp.seat[i][j]>=1&&tp.seat[i][j]<=10) //座位号在1-10之间说明预订座位成功
@@ -122,25 +117,30 @@ void OrderTicket(Order tp,int OrderNum){
                 else
                     flag=0;
             }
-            if(flag)                  //预订成功后座位数相应的调整
+            if(flag)                    //预订成功后座位数相应的调整
                 NewOrder.SeatNum++;
         }
-        NewOrder.MoneyAccount=NewOrder.MoneyAccount-(50*(NewOrder.SeatNum));
-        NewOrder.MovieNum++;
+        NewOrder.MovieNum++;            //场次加一
     }
-    else{                               //超过三个座位，座位编号都设为-1，表示预订失败
+    else{                               //超过三个座位，或观看场次已满，座位编号都设为-1，表示预订失败
         for(i=0;i<tp.SeatNum;i++){
             for(j=0;j<2;j++)
                 NewOrder.seat[i][j]=-1;
         }
     }
-    temp[OrderNum]=NewOrder;          //temp数组中加入新的订单
+    temp[OrderNum]=NewOrder;            //temp数组中加入新的订单
     
     FILE *fp;
+    if(FindOrder(tp.ID)){               //账户有订单记录,则预订场次加一，同时在之前订单后追加新订单
+        temp[OrderNum].MovieNum++;
+        fp=fopen(FileName,"a");
+    }
+    else
+        fp=fopen(FileName,"w");
     
-    if((fp=fopen(FileName,"w"))==NULL)
+    if(fp==NULL)
         exit(0);
-    if(NewOrder.MoneyAccount>=0){                 //账户余额扣款后还有结余才能写入文件
+    if(NewOrder.MoneyAccount>=(50*NewOrder.SeatNum)){                 //账户余额扣款后还有结余才能写入文件
         fprintf(fp,"%s\n",temp[OrderNum].ID);
         fprintf(fp,"%d\n",temp[OrderNum].num);
         fprintf(fp,"%s\n",temp[OrderNum].MovName);
@@ -157,8 +157,61 @@ void OrderTicket(Order tp,int OrderNum){
                     temp[OrderNum].seat[j][1]);
         fprintf(fp,"%d\n",temp[OrderNum].MoneyAccount);
     }
+    else
+        printf("请先充值\n");
     fclose(fp);
 }
+
+void SerchMovie(char Movname[],char Cinname[]){
+    char moviename[MAXSIZE];
+    char str[MAXSIZE];
+    strcpy(moviename,Movname);
+    strcat(moviename,".txt");
+    
+    FILE *fp;
+    if((fp=fopen(moviename,"r"))==NULL){
+        printf("打开文件失败\n");
+        exit(0);
+    }
+    fgets(str,sizeof(str),fp);
+    while(!feof(fp)){
+        printf("%s",str);
+        fgets(str,sizeof(str),fp);
+    }
+    fclose(fp);
+}
+
+int DeleteOrder(char id[],Order temp[],int OrderNum){
+    int i,j;
+    i=0;
+    while(strcmp(id,temp[i].ID)&&i<OrderNum)
+        i++;
+    for(j=i;j<OrderNum-1;j++)
+        temp[j]=temp[j+1];
+    OrderNum--;
+    return OrderNum;
+}
+
+Order OrderInfo(void){       //创建订单结构体
+    Order tp;
+    int i;
+    printf("请输入用户ID:");
+    gets(tp.ID);
+    printf("请输入影院名称:");
+    gets(tp.CinName);
+    printf("请输入影片名称:");
+    gets(tp.MovName);
+    printf("请输入预订的座位数:");
+    scanf("%d",&tp.SeatNum);
+    printf("请输入座位号:");
+    for(i=0;i<tp.SeatNum;i++){
+        scanf("%d%d",&tp.seat[i][0],&tp.seat[i][1]);
+    }
+    getchar();
+    return tp;
+}
+
+
 
 int main(int argc, const char * argv[]) {
     int i,j;
@@ -183,5 +236,6 @@ int main(int argc, const char * argv[]) {
             printf("预订座位数:%d\n",temp[i].SeatNum);
         }
     }
+
     return 0;
 }
