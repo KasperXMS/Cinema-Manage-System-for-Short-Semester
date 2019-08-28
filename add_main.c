@@ -158,10 +158,11 @@ void find_session_info(char path[])
         fp = fopen(pathA, "r");
         char str[255];
         printf("此场次的具体信息如下：\n");
+        fgets(str, 255, (FILE *)fp);
         while (!feof(fp))
         {
-            fgets(str, 255, (FILE *)fp);
             printf("%s", str);
+            fgets(str, 255, (FILE *)fp);
         }
     }
     while (!_findnext(handle, &fileinfo)) //循环查找其他符合的文件，知道找不到其他的为止
@@ -242,10 +243,11 @@ void find_studio_info(char path[]) //管理员影厅查询
             fp = fopen(pathA, "r");
             char str[255];
             printf("此影厅的具体信息如下：\n");
+            fgets(str, 255, (FILE *)fp);
             while (!feof(fp))
             {
-                fgets(str, 255, (FILE *)fp);
                 printf("%s", str);
+                fgets(str, 255, (FILE *)fp);
             }
         }
     }
