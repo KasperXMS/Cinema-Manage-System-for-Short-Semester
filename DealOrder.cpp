@@ -4,14 +4,14 @@
 #include <io.h>
 #include <direct.h>
 #include <windows.h>
-//µçÓ°ÔºÂôÆ± 
-typedef struct Order{ 		//ÓÃ»§¸öÈËÐÅÏ¢¼°¶©µ¥ÐÅÏ¢
-    char ID[11];            //ÓÃ»§ID 
-    int del;                //ÊÇ·ñÉ¾³ý¶©µ¥
-	int num;                //¶©µ¥±àºÅ 
-    char MovName[32];       //Ó°Æ¬Ãû³Æ 
-    char CinName[32];       //Ó°ÔºÃû³Æ 
-    int seat[15][2];         //¶©µ¥×ùÎ»ÐÅÏ¢ 
+//ç”µå½±é™¢å–ç¥¨ 
+typedef struct Order{ 		//ç”¨æˆ·ä¸ªäººä¿¡æ¯åŠè®¢å•ä¿¡æ¯
+    char ID[11];            //ç”¨æˆ·ID 
+    int del;                //æ˜¯å¦åˆ é™¤è®¢å•
+	int num;                //è®¢å•ç¼–å· 
+    char MovName[32];       //å½±ç‰‡åç§° 
+    char CinName[32];       //å½±é™¢åç§° 
+    int seat[3][2];         //è®¢å•åº§ä½ä¿¡æ¯ 
     int Hour;               //time of order
 	int Min;				
 	int SeatNum;            //amount of seats in the order
@@ -60,25 +60,25 @@ int DealOrder(Order orders)
 	orders.Min = 33;
 	orders.SeatNum = 3;
 		//strcpy(id,orders.ID);
-		fgets(id,12,stdin);    //ÊäÈëÓÃ»§ID 
-		for (j = 0;find != 1;j++)//ÕÒµ½ÁË¾ÍÍË³ö 
+		fgets(id,12,stdin);    //è¾“å…¥ç”¨æˆ·ID 
+		for (j = 0;find != 1;j++)//æ‰¾åˆ°äº†å°±é€€å‡º 
 		{
-			if ((fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r")) == NULL)//ÔÚÓÃ»§ÃûÎÄ¼þÀïÕÒÈË 
+			if ((fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r")) == NULL)//åœ¨ç”¨æˆ·åæ–‡ä»¶é‡Œæ‰¾äºº 
 			{
 				printf("Fail to read!\n");
 				return l;
 			}
 			else
 				fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r");
-			while(fgets(Id,12,fptr) != NULL && find != 1)//±éÀúÃ¿ÐÐµÄid£¬Ö±ÖÁÕÒµ½»òÕßÈ«²¿ËÑÍê 
+			while(fgets(Id,12,fptr) != NULL && find != 1)//éåŽ†æ¯è¡Œçš„idï¼Œç›´è‡³æ‰¾åˆ°æˆ–è€…å…¨éƒ¨æœå®Œ 
      		{
-     			if (strcmp(id,Id) == 0)//ÕÒµ½¶ÔÓ¦µÄÓÃ»§id 
+     			if (strcmp(id,Id) == 0)//æ‰¾åˆ°å¯¹åº”çš„ç”¨æˆ·id 
      			{
 					find = 1;
-					printf("Successfully Find The User!\n");//Ñ°ÕÒµ½ÁËÓÃ»§µÄID 
+					printf("Successfully Find The User!\n");//å¯»æ‰¾åˆ°äº†ç”¨æˆ·çš„ID 
 				}
      		}
-     		if (fgets(Id,12,fptr) == NULL && find != 1 )//±éÀúÍê²¢ÇÒÃ»ÓÐÕÒµ½ 
+     		if (fgets(Id,12,fptr) == NULL && find != 1 )//éåŽ†å®Œå¹¶ä¸”æ²¡æœ‰æ‰¾åˆ° 
 			{
 				printf("Can't Find The User!\n");
 			} 
@@ -91,16 +91,16 @@ int DealOrder(Order orders)
 		int  totalseat,remain;
 		double price;
 		char lang[4];  
-		int *Occupied;  //ÓÃÓÚ¶ÁÈ¡³¡´ÎÎÄ¼þÀïµÄ¸÷ÏîÊý¾Ý/×Ö·û
+		int *Occupied;  //ç”¨äºŽè¯»å–åœºæ¬¡æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®/å­—ç¬¦
 		
-		int seat1,remain1;//Õ¼µÄ×ùÎ»µÄÌí¼Ó 
+		int seat1,remain1;//å çš„åº§ä½çš„æ·»åŠ  
 		int k=0,k1=0,k2=0,k3=0;
 		char temp[18],temp1[18],temp2[18],temp3[18],temp4[18],path[255];
 		int PosOfSes[20][20]={0};//the position of the seats in this session
 		int SW,GW;
 		//char filename[12]="ABCDEFG";  
 		
-		//¼ÙÉèÕâÀï³¡´ÎÐÅÏ¢ÒÑ¾­ÍêÈ«È·¶¨ 
+		//å‡è®¾è¿™é‡Œåœºæ¬¡ä¿¡æ¯å·²ç»å®Œå…¨ç¡®å®š 
 		//char Ses[18];
 		//strcpy(SerialNum, Ses);
 		
@@ -110,7 +110,7 @@ int DealOrder(Order orders)
 		for (k = 0;SerialNum[k] != '\n';k++);
 		SerialNum[k] = '\0';
 		strcpy(iD,".ses"); 
-		strcat(SerialNum,iD);//SerialNum¼´Îª¸Ã³¡´ÎµÄÎÄ¼þÃû    
+		strcat(SerialNum,iD);//SerialNumå³ä¸ºè¯¥åœºæ¬¡çš„æ–‡ä»¶å    
 		
 		for (k = 0;SerialNum[k] > 57;k++)
 			temp1[k] = SerialNum[k];
@@ -123,7 +123,7 @@ int DealOrder(Order orders)
 			temp3[k - k1 - 4] = SerialNum[k];
 		temp3[k - k1 - 4]  = '\0';
 		for (k = k1 + 6;k < k1 + 8;k++)
-			temp4[k - k1 - 6] = SerialNum[k]; //½ØÈ¡×Ö·û´® 
+			temp4[k - k1 - 6] = SerialNum[k]; //æˆªå–å­—ç¬¦ä¸² 
 		temp4[k - k1 - 6] = '\0';
 		strcat(path,"C:/Users/DELL/Desktop/IOCS/sessions/");
 		strcat(path,temp1);
@@ -136,7 +136,7 @@ int DealOrder(Order orders)
 		for (k = 0;path[k] != '\0';k++);
 		path[k] = '\0';
 		
-		if((fptr = fopen(path,"r+")) == NULL)//Ñ°ÕÒÃû×Ö½Ð¸Ã³¡´ÎµÄ³¡´ÎÎÄ¼þ (¸ÃÄ¿Â¼ÏÂ£© 
+		if((fptr = fopen(path,"r+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 		{
         	printf("Open the file failure...\n");
         	l = 0;
@@ -145,7 +145,7 @@ int DealOrder(Order orders)
     		else
 			{
 				fptr = fopen(path,"r+");
-				//Ã¿ÐÐ¶ÁÈë¸Ã³¡´ÎÎÄ¼þÖÐµÄ¶ÔÓ¦Êý¾Ý£¬·ÅÔÚ±äÁ¿Àï 
+				//æ¯è¡Œè¯»å…¥è¯¥åœºæ¬¡æ–‡ä»¶ä¸­çš„å¯¹åº”æ•°æ®ï¼Œæ”¾åœ¨å˜é‡é‡Œ 
 				fscanf(fptr,"%s",temp);
 			    fscanf(fptr,"%s",moviename1);
 			    fscanf(fptr,"%s",cinema1);
@@ -170,9 +170,9 @@ int DealOrder(Order orders)
 					for (k = 0;k < totalseat - remain;k++)
 						fscanf(fptr,"%d",&Occupied[k]);
 					remain1 = remain;
-					remain -= orders.SeatNum;//¸ÃÆ±¹ºÂò£¬Ê£ÓàÆ±Êý-1 
-					fclose(fptr);//¹Ø±ÕÎÄ¼þ 
-					if((fptr1 = fopen(path,"w+")) == NULL)//Ñ°ÕÒÃû×Ö½Ð¸Ã³¡´ÎµÄ³¡´ÎÎÄ¼þ (¸ÃÄ¿Â¼ÏÂ£© 
+					remain -= orders.SeatNum;//è¯¥ç¥¨è´­ä¹°ï¼Œå‰©ä½™ç¥¨æ•°-1 
+					fclose(fptr);//å…³é—­æ–‡ä»¶ 
+					if((fptr1 = fopen(path,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 					{
         				printf("Open the file failure...\n");
         				l = 0;
@@ -180,7 +180,7 @@ int DealOrder(Order orders)
     				}
     					else
     					{
-							fptr1 = fopen(path,"w+");//°Ñ´æÔÚ¸÷¸ö±äÁ¿ÀïµÄ³¡´ÎÐÅÏ¢ÎÄ¼þÀïµÄ¸÷ÏîÊý¾ÝÅª»Ø¸ÃÎÄ¼þ£¬·½±ãÐÞ¸ÄÆ±ÓàÊý 
+							fptr1 = fopen(path,"w+");//æŠŠå­˜åœ¨å„ä¸ªå˜é‡é‡Œçš„åœºæ¬¡ä¿¡æ¯æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®å¼„å›žè¯¥æ–‡ä»¶ï¼Œæ–¹ä¾¿ä¿®æ”¹ç¥¨ä½™æ•° 
 							fprintf(fptr1,"%s\n",temp);
 							fprintf(fptr1,"%s\n",moviename1);
 			    			fprintf(fptr1,"%s\n",cinema1);
@@ -203,7 +203,7 @@ int DealOrder(Order orders)
 									PosOfSes[SW - 1][GW - 1] = 1;
 							}
 						}
-					if((fptr2 = fopen(path,"a")) == NULL)//Ñ°ÕÒÃû×Ö½Ð¸ÃÓ°ÌüµÄÓ°ÌüÎÄ¼þ (¸ÃÄ¿Â¼ÏÂ£© 
+					if((fptr2 = fopen(path,"a")) == NULL)//å¯»æ‰¾åå­—å«è¯¥å½±åŽ…çš„å½±åŽ…æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 					{
         				printf("Open the file failure...\n");
         				l = 0;
@@ -217,7 +217,7 @@ int DealOrder(Order orders)
 								SW = orders.seat[k][0] * 100;
 								GW = orders.seat[k][1];
 								seat1 = SW + GW;
-								fprintf(fptr2,"%d\n",seat1);//ÔÚÓ°ÌüÎÄ¼þÖÐ×îºóÃ¿ÐÐÃ¿ÐÐÌí¼ÓÒÑÕ¼×ùÎ»Êý 
+								fprintf(fptr2,"%d\n",seat1);//åœ¨å½±åŽ…æ–‡ä»¶ä¸­æœ€åŽæ¯è¡Œæ¯è¡Œæ·»åŠ å·²å åº§ä½æ•° 
 							}
 							fclose(fptr2);
 						}
@@ -242,13 +242,13 @@ int DealOrder(Order orders)
 			
 			
 			/* 
-				//Ñ°ÕÒ¶ÔÓ¦µÄÓ°ÌüµÄ¸ÃµçÓ°µÄ¸Ã²¥³öÊ±¼ä¶ÎµÄ¶ÔÓ¦ÎÄ¼þ£¬Ìí¼ÓÒ»¸öÒÑÕ¼×ùÎ» (Ä¿Ç°ÔÝ¶¨ÎÄ¼þÎªfilename) 
+				//å¯»æ‰¾å¯¹åº”çš„å½±åŽ…çš„è¯¥ç”µå½±çš„è¯¥æ’­å‡ºæ—¶é—´æ®µçš„å¯¹åº”æ–‡ä»¶ï¼Œæ·»åŠ ä¸€ä¸ªå·²å åº§ä½ (ç›®å‰æš‚å®šæ–‡ä»¶ä¸ºfilename) 
 				//strcpy(filename,orders[i].cinema);
 				//strcat(filename,orders[i].hall);
 				strcat(filename,".txt");				
 				
 				
-				if((fptr3 = fopen(filename,"w+")) == NULL)//Ñ°ÕÒÃû×Ö½Ð¸ÃÓ°ÌüµÄÓ°ÌüÎÄ¼þ (¸ÃÄ¿Â¼ÏÂ£© 
+				if((fptr3 = fopen(filename,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥å½±åŽ…çš„å½±åŽ…æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 				{
         			printf("Open the file failure...\n");
         			return l;
@@ -257,8 +257,8 @@ int DealOrder(Order orders)
     			{
 					fptr3 = fopen(filename,"w+");
 					char cinema2[5],Type[4];
-					int session1, Totalseat,Occupiedseats,*Occuseat;// ·ÖÀëÓ°Æ¬ÎÄ¼þÀïµÄ¸÷Ïî²»Í¬Êý¾Ý 
-					Occuseat = (int *) malloc(remain * sizeof(int));//¶¯Ì¬Êý×é 
+					int session1, Totalseat,Occupiedseats,*Occuseat;// åˆ†ç¦»å½±ç‰‡æ–‡ä»¶é‡Œçš„å„é¡¹ä¸åŒæ•°æ® 
+					Occuseat = (int *) malloc(remain * sizeof(int));//åŠ¨æ€æ•°ç»„ 
 					if (!Occuseat)
 					{
 						printf("Fail to create the array!\n");
@@ -276,7 +276,7 @@ int DealOrder(Order orders)
 							fscanf(fptr3,"%d",Occuseat[i]);
 						fclose(fptr3);
 						
-						if((fptr3 = fopen(filename,"w+")) == NULL)//Ñ°ÕÒÃû×Ö½Ð¸ÃÓ°ÌüµÄÓ°ÌüÎÄ¼þ (¸ÃÄ¿Â¼ÏÂ£© 
+						if((fptr3 = fopen(filename,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥å½±åŽ…çš„å½±åŽ…æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 						{
         					printf("Open the file failure...\n");
         					return l;
@@ -290,7 +290,7 @@ int DealOrder(Order orders)
 							fprintf(fptr3,"%d\n",Occupiedseats);
 							fprintf(fptr3,"%s\n",Type);
 						for (k = 0;k < Totalseat - remain;k++)
-							fprintf(fptr3,"%d\n",Occuseat[i]);//°ÑÊý¾ÝÖØÐÂÊä»ØÈ¥£¬Í¬Ê±Æ±ÓàÊýÒÑ¸ü¸Ä 
+							fprintf(fptr3,"%d\n",Occuseat[i]);//æŠŠæ•°æ®é‡æ–°è¾“å›žåŽ»ï¼ŒåŒæ—¶ç¥¨ä½™æ•°å·²æ›´æ”¹ 
 						}
 					}
 				}						
