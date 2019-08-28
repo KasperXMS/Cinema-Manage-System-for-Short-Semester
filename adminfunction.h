@@ -346,6 +346,6 @@ void add_session_info(char path[]) //添加场次
     fputs("\n", fp);
     fclose(fp);
 }
-
+//呃。
 
 #endif
