@@ -160,7 +160,7 @@ void changeInfo(char path[], char username[])
 {
 	char username[20] = "zcy";
 	changeInfo(argv[0], username);
-	return 0;
+	return 0;呃。
 }*/
 
 	
