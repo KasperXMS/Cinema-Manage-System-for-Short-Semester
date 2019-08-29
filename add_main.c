@@ -13,6 +13,7 @@ void find_session_info(char path[]);
 void find_studio_info(char path[]);
 void studio_info(char path[]);
 void add_session_info(char path[]);
+void session_classified(char path[]);
 
 void Changeinfo(char path[], char username[])
 {
@@ -178,7 +179,6 @@ void find_session_info(char path[])
             FILE *fp = NULL;
             fp = fopen(pathA, "r");
             char str[255];
-            int i;
             printf("此场次的具体信息如下：\n");
             fgets(str, 255, (FILE *)fp);
             while (!feof(fp))
@@ -235,7 +235,7 @@ void find_studio_info(char path[]) //管理员影厅查询
         if (strcmp(studio, fileinfo.name) == 0)
         {
             temp = 1;
-            memset(pathA, '\0', sizeof(path));
+            memset(pathA, '\0', sizeof(pathA));
             strncpy(pathA, path, strlen(path) - 9);
             wsprintf(filename, "\\studio_info\\%s", fileinfo.name);
             strcat(pathA, filename);
@@ -348,4 +348,95 @@ void add_session_info(char path[]) //添加场次
     fprintf(fp, "%lf", rate);
     fputs("\n", fp);
     fclose(fp);
+}
+void session_classified(char path[])
+{
+    char cma[20];
+    printf("请输入你要整理的影院：");
+    gets(cma);
+    char to_search[101] = {'\0'};
+    strncpy(to_search, path, strlen(path) - 8);
+    strcat(to_search, "studio_info\\*.txt");
+    long handle;                               //用于查找的句柄
+    struct _finddata_t fileinfo;               //文件信息的结构体
+    handle = _findfirst(to_search, &fileinfo); //第一次查找
+    //printf("%s\n", fileinfo.name);        //打印出找到的文件的文件名
+    char pathA[255] = {'\0'};
+    strncpy(pathA, path, strlen(path) - 9);
+    char filename[255] = {'\0'};
+    wsprintf(filename, "/session_info/%s", fileinfo.name);
+    strcat(pathA, filename);
+    FILE *fp = NULL;
+    fp = fopen(pathA, "r");
+    char str[2][255];
+    memset(str, 0, sizeof(str));
+    char *p;
+    int i;
+    int num = 0;
+    //查找文件中所属的影院
+    for (i = 0; i < 2; i++)
+    {
+        fgets(str[i], 255, (FILE *)fp);
+    }
+    //对比文件所属影院与待查找影院，符合则录入
+    p = strtok(str[1], "\n");
+    if (strcmp(str[1], cma) == 0)
+    {
+        num++;
+        memset(pathA, '\0', sizeof(pathA));
+        strncpy(pathA, path, strlen(path) - 9);
+        wsprintf(filename, "\\studio_info\\%s", fileinfo.name);
+        strcat(pathA, filename);
+        FILE *files = NULL;
+        wsprintf(filename, "/session_Classified/%s.txt", cma);
+        strcat(path, filename);
+        if (num == 1)
+        {
+            files = fopen(path, "w+");
+        }
+        else
+        {
+            files = fopen(path, "a+");
+        }
+        fprintf(files, "%s", str[0]);
+        fputs("\n", fp);
+    }
+    while (!_findnext(handle, &fileinfo)) //继续遍历文件夹的文件
+    {
+        //printf("%s\n", fileinfo.name);
+        memset(pathA, '\0', sizeof(pathA));
+        strncpy(pathA, path, strlen(path) - 9);
+        wsprintf(filename, "\\studio_info\\%s", fileinfo.name);
+        strcat(pathA, filename);
+        FILE *fp = NULL;
+        fp = fopen(path, "r");
+        for (i = 0; i < 2; i++)
+        {
+            fgets(str[i], 255, (FILE *)fp);
+        }
+        p = strtok(str[1], "\n");
+        //继续对比所属影院，符合则录入
+        if (strcmp(str[1], cma) == 0)
+        {
+            num++;
+            memset(pathA, '\0', sizeof(pathA));
+            strncpy(pathA, path, strlen(path) - 9);
+            wsprintf(filename, "\\studio_info\\%s", fileinfo.name);
+            strcat(pathA, filename);
+            FILE *files = NULL;
+            wsprintf(filename, "/session_Classified/%s.txt", cma);
+            strcat(path, filename);
+            if (num == 1)
+            {
+                files = fopen(path, "w+");
+            }
+            else
+            {
+                files = fopen(path, "a+");
+            }
+            fprintf(files, "%s", str[0]);
+            fputs("\n", fp);
+        }
+    }
+    _findclose(handle);
 }
