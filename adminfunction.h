@@ -2,6 +2,7 @@
 #define _ADMINFUNCTION_H
 
 #include "judge.h"
+#include "gadgets.h"
 #include <direct.h>
 #include <stdio.h>
 #include <string.h>
@@ -299,8 +300,8 @@ void add_session_info(char path[]) //添加场次
     char mov[20]={'\0'};
     char cma[20]={'\0'};
     int studio=0;
-    int star = 1210;
-    int end = 1340;
+    char star[6] = {'\0'};
+    char end[6] = {'\0'};
     int time = 90;
     double pri = 60;
     char kind[5];
@@ -315,9 +316,9 @@ void add_session_info(char path[]) //添加场次
     printf("请输入你要添加到的影厅号：");
     scanf("%d", &studio);
     printf("请输入影片的开始时间：");
-    scanf("%d", &star);
+    scanf("%s", star);
     printf("请输入影片的结束时间：");
-    scanf("%d", &end);
+    scanf("%s", end);
     printf("请输入影片时长：");
     scanf("%d", &time);
     printf("请输入本场次票价：");
@@ -343,9 +344,9 @@ void add_session_info(char path[]) //添加场次
     fputs("\n", fp);
     fprintf(fp, "%d", studio);
     fputs("\n", fp);
-    fprintf(fp, "%d", star);
+    fprintf(fp, "%s", star);
     fputs("\n", fp);
-    fprintf(fp, "%d", end);
+    fprintf(fp, "%s", end);
     fputs("\n", fp);
     fprintf(fp, "%d", time);
     fputs("\n", fp);
@@ -420,7 +421,7 @@ void session_classified(char path[])
         FILE *fp = NULL;
         if((fp = fopen(pathA, "r"))!=NULL)
         {
-        	printf("Successfully found!\n");
+        	//printf("Successfully found!\n");
 		}
 		else
 		{
