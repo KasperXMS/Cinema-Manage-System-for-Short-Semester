@@ -6,6 +6,14 @@
 //  Copyright © 2019 想去南极的北极熊. All rights reserved.
 //
 
+//
+//  main.c
+//  小学期2
+//
+//  Created by 想去南极的北极熊 on 2019/8/27.
+//  Copyright © 2019 想去南极的北极熊. All rights reserved.
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,18 +44,19 @@ typedef struct Order{   //订单结构体
 
 typedef struct movie{//场次信息结构体
     char SessioNum[13];     //场次号
-    int row;                //总排数
-    int colum;              //总列数
     char MovName[MAXSIZE];  //影片名
     char CinName[MAXSIZE];  //影院名
     int MovieRoom;          //影厅
-    int Startime;           //开始时间
-    int Stoptime;           //结束时间
+    char Startime[6];           //开始时间
+    char Stoptime[6];           //结束时间
     int time;               //总时长
     int AllticketNum;       //总票数
     int remainTicket;       //余票数
+    double price;           //票价
     char language[20];      //语言类型
     char MovType[6];        //影片类型
+    int row;                //总排数
+    int colum;              //总列数
     int seat[MAXSIZE][MAXSIZE];//座位信息
 }SessionDetail;
 
@@ -58,6 +67,7 @@ void CurrentSeat(SessionDetail session);
 Order SelectSeat(Order order,SessionDetail session);
 void SetPositionByLine(FILE *fp,int line);
 bool Order_Is_Legal(Order order,SessionDetail session);
+Order CompleteOrder(Order order,SessionDetail session);
 
 Order CreateOrder(void){
     Order temp;
@@ -77,6 +87,15 @@ Order CreateOrder(void){
     scanf("%s",temp.MovName);
     
     return temp;
+}
+
+Order CompleteOrder(Order order,SessionDetail session){
+    strcpy(order.CinName,session.CinName);
+    strcpy(order.MovName,session.MovName);
+    strcpy(order.Sessions,session.SessioNum);
+    order.MovieRoom=session.MovieRoom;
+    order.cost=order.SeatNum*session.price;
+    return order;
 }
 
 void SetPositionByLine(FILE *fp,int line){   //将文件指针定位到指定行
@@ -99,24 +118,26 @@ bool Order_Is_Legal(Order order,SessionDetail session){
     return flag;
 }
 
-SessionDetail ReadSession(char moviename[]){//将场次信息文件写入结构体中
+SessionDetail ReadSession(char sessionum[]){//将场次信息文件写入结构体中
     SessionDetail temp;
     int i,j,seat=0,seatx=0,seaty=0;
     char str[5]={'\0'};
-    strcpy(temp.MovName,moviename);
+    char str1[MAXSIZE]={'\0'};
+    strcpy(temp.SessioNum,sessionum);
+    strcpy(str1,sessionum);
+    strcat(str1,".txt");
     FILE *fp;
-    if((fp=fopen("Avengers4.txt","r"))==NULL)
+    if((fp=fopen(str1,"r"))==NULL)
         exit(0);
-    fscanf(fp,"%s%d%d",temp.SessioNum,&temp.row,&temp.colum);
-    SetPositionByLine(fp, 3);
-    fscanf(fp,"%s%d",temp.CinName,&temp.MovieRoom);
-    fscanf(fp,"%d%d%d",&temp.Startime,&temp.Stoptime,&temp.time);
-    fscanf(fp,"%d%d%s",&temp.AllticketNum,&temp.remainTicket,temp.language);
-    fscanf(fp,"%s",temp.MovType);
+    SetPositionByLine(fp,0);
+    fscanf(fp,"%s%s%d",temp.MovName,temp.CinName,&temp.MovieRoom);
+    fscanf(fp,"%s%s%d",temp.Startime,temp.Stoptime,&temp.time);
+    fscanf(fp,"%d%d%lf",&temp.AllticketNum,&temp.remainTicket,&temp.price);
+    fscanf(fp,"%s%s%d%d",temp.language,temp.MovType,&temp.row,&temp.colum);
     for(i=0;i<temp.row;i++)
         for(j=0;j<temp.colum;j++)
             temp.seat[i][j]=0;
-    SetPositionByLine(fp,14);
+    SetPositionByLine(fp,13);
     while(!feof(fp)){
         fscanf(fp,"%s",str);
         seat=atoi(str);
@@ -130,6 +151,7 @@ SessionDetail ReadSession(char moviename[]){//将场次信息文件写入结构�
 
 void CurrentSeat(SessionDetail session){
     int i,j;
+    printf("当前选座情况如图：\n");
     for(i=0;i<session.row;i++){
         for(j=0;j<session.colum;j++){
             if(j==session.colum-1)
@@ -142,15 +164,7 @@ void CurrentSeat(SessionDetail session){
 
 Order SelectSeat(Order order,SessionDetail session){
     int i=0,flag;
-    char movie[MAXSIZE]={'\0'};
     
-    strcpy(movie,order.MovName);
-    strcat(movie,".txt");
-    
-    FILE *fp=NULL;
-    
-    if((fp=fopen("Avengers4.txt","r"))==NULL)
-        exit(0);
     printf("请输入预订座位数:");
     scanf("%d",&order.SeatNum);
     if(order.SeatNum>3){//购票数大于余票数或者购票数大于3都表示订单失败
@@ -174,17 +188,19 @@ Order SelectSeat(Order order,SessionDetail session){
         for(i=0;i<order.SeatNum;i++)
             scanf("%d%d",&order.seat[i][0],&order.seat[i][1]);
     }
-    fclose(fp);
+    else
+        order=CompleteOrder(order, session);
+    
     return order;
 }
 
 int main(int argc,const char * argv[]){
     /*
-    SessionDetail session;
-    Order order;
-    order=CreateOrder();
-    session=ReadSession(order.MovName);
-    order=SelectSeat(order, session);
-    */
+     SessionDetail session;
+     Order order;
+     order=CreateOrder();
+     session=ReadSession("DDYY08021430");
+     order=SelectSeat(order,session);
+     */
 }
 
