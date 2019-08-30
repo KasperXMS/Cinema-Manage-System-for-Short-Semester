@@ -1,11 +1,17 @@
-#ifndef _USERCHANGEINFO_H
-#define _USERCHANGEINFO_H
+#ifndef _USERFUNCTION_H
+#define _USERFUNCTION_H
 
 #include <stdio.h>
-#include <string.h> 
+#include <stdlib.h>
+#include <string.h>
+#include <direct.h>
+#include <windows.h>
 #include "judge.h"
 #define MAX 101
 void changeInfo(char path[], char username[]);
+void TopUp(char path[], char username[]);
+void cst_find_cma(char path[]);
+
 void changeInfo(char path[], char username[])
 {
 	FILE *in, *out;
@@ -155,12 +161,136 @@ void changeInfo(char path[], char username[])
 	
 }
 
+void TopUp(char path[], char username[])
+{
+	FILE *in, *out;
+	char filename[MAX]={'\0'};
+	char user1[MAX]={'\0'}, NAME[MAX]={'\0'}, gender[MAX]={'\0'}, password[MAX]={'\0'}, tel[MAX]={'\0'}, email[MAX]={'\0'};
+	double remain=0, topup=0;
+	char option='\0';
+	strncpy(filename, path, strlen(path)-8);
+	strcat(filename, "accounts\\user\\");
+	strcat(filename, username);
+	strcat(filename, ".acc");
+	if((in=fopen(filename, "r"))!=NULL)
+	{
+		fscanf(in, "%s", user1);
+		fscanf(in, "%s", NAME);
+		fscanf(in, "%s", gender);
+		fscanf(in, "%s", tel);
+		fscanf(in, "%s", password);
+		fscanf(in, "%s", email);
+		fscanf(in, "%lf", &remain);
+		fclose(in);
+		printf("用户当前的余额为：%.2lf\n", remain);
+		printf("请输入充值金额：");
+		scanf("%lf", &topup);
+		printf("确定要充值%.2lf元吗？是(Y)，否(N)\n", topup);
+		getchar();
+		scanf("%c", &option);
+		switch(option)
+		{
+			case 'Y':
+				remain=remain+topup; 
+				out=fopen(filename, "w"); 
+				fprintf(out, "%s\n", user1);
+				fprintf(out, "%s\n", NAME);
+				fprintf(out, "%s\n", gender);
+				fprintf(out, "%s\n", tel);
+				fprintf(out, "%s\n", password);
+				fprintf(out, "%s\n", email);
+				fprintf(out, "%lf\n", remain);
+				if(fclose(out)!=0)
+				{
+					fprintf(stderr, "系统错误！\n");
+				}
+				else
+				{
+					printf("充值成功！您现在余额为：%.2lf\n", remain);
+				}
+				break;
+			case 'N':
+				printf("正退出充值页面...\n");
+				break;
+			default:
+				printf("非法输入！\n"); 
+		}
+	}
+	else
+	{
+		fprintf(stderr, "系统错误！\n");
+	}
+}
+
+void cst_find_cma(char path[])
+{
+	getchar();
+    char cma[20]={'\0'};
+    printf("请输入你想要查找的影院：");
+    gets(cma);
+    char to_search[MAX]={'\0'}; //欲查找的文件，支持通配符
+    strncpy(to_search, path, strlen(path)-8);
+    strcat(to_search, "cma_info\\*.txt");
+    long handle;                                       //用于查找的句柄
+    struct _finddata_t fileinfo;                       //文件信息的结构体
+    handle = _findfirst(to_search, &fileinfo);
+    //printf("%s\n", fileinfo.name);
+    //打开所遍历到的文件
+    char pathA[255] = {'\0'};
+    char filename[255] = {'\0'};
+    char str[255] = {'\0'};
+    strncpy(pathA, path, strlen(path)-9);
+    strcat(cma, ".txt");
+    int temp = 0;
+    if (strcmp(fileinfo.name, cma) == 0)
+    {
+        temp = 1;
+        wsprintf(filename, "\\cma_info\\%s", fileinfo.name);
+        strcat(pathA, filename);
+        FILE *fp = NULL;
+        fp = fopen(pathA, "r");
+        printf("此电影院的影片场次如下：\n");
+        fgets(str, 255, (FILE *)fp);
+        while (!feof(fp))
+        {
+            printf("%s", str);
+            fgets(str, 255, (FILE *)fp);
+        }
+    }
+    while (!_findnext(handle, &fileinfo)) //循环查找其他符合的文件，知道找不到其他的为止
+    {
+        //printf("%s\n", fileinfo.name);
+        if (strcmp(cma, fileinfo.name) == 0)
+        {
+            temp = 1;
+            memset(pathA, '\0', sizeof(pathA));
+            strncpy(pathA, path, strlen(path)-9);
+            wsprintf(filename, "\\cma_info\\%s", fileinfo.name);
+            strcat(pathA, filename);
+            FILE *fp = NULL;
+            fp = fopen(pathA, "r");
+            char str[255];
+            printf("此电影院的影片场次如下：\n");
+            fgets(str, 255, (FILE *)fp);
+            while (!feof(fp))
+            {
+                printf("%s", str);
+                fgets(str, 255, (FILE *)fp);
+            }
+        }
+    }
+    if (temp == 0)
+    {
+        printf("你输入的影院不存在");
+    }
+    _findclose(handle); //别忘了关闭句柄
+}
 #endif
 /*int main(int argc, char *argv[])
 {
 	char username[20] = "zcy";
 	changeInfo(argv[0], username);
-	return 0;呃。
+	return 0;
 }*/
 
 	
