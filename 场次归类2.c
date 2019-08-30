@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
+#include <stdlib.h>
 void session_classified();
 int main()
 {
@@ -12,6 +13,7 @@ void session_classified()
 {
     // printf("请输入你要整理的影院：");
     // gets(cma);
+    system("del D:\\workplace\\cma_info\\*txt");
     char *to_search = "D:\\workplace\\session_info\\*txt"; //欲查找的文件，支持通配符
     long handle;                                           //用于查找的句柄
     struct _finddata_t fileinfo;                           //文件信息的结构体
