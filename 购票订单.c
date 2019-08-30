@@ -1,3 +1,19 @@
+//
+//  main.c
+//  小学期2
+//
+//  Created by 想去南极的北极熊 on 2019/8/27.
+//  Copyright © 2019 想去南极的北极熊. All rights reserved.
+//
+
+//
+//  main.c
+//  小学期2
+//
+//  Created by 想去南极的北极熊 on 2019/8/27.
+//  Copyright © 2019 想去南极的北极熊. All rights reserved.
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -181,10 +197,10 @@ Order SelectSeat(Order order,SessionDetail session){
 int main(int argc,const char * argv[]){
     /*
      SessionDetail session;
-     Order order_info;
-     order_info=CreateOrder();
+     Order order;
+     order=CreateOrder();
      session=ReadSession("DDYY08021430");
-     order_info=SelectSeat(order_info,session);
+     order=SelectSeat(order,session);
      */
 }
 
