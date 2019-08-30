@@ -96,7 +96,8 @@ void adminUI(char path[], char username[])
 						printf("**********场次管理**********\n");
 						printf("1. 场次查询\n");
 						printf("2. 添加场次\n");
-						printf("3. 返回\n");
+						printf("3. 场次归类\n");
+						printf("4. 返回\n");
 						printf("请输入选项：");
 						scanf("%d", &choicea3);
 						switch(choicea3)
@@ -108,6 +109,9 @@ void adminUI(char path[], char username[])
 								add_session_info(path);
 								break;
 							case 3:
+								session_classified(path);
+								break;
+							case 4:
 								flaga3=0;
 								break;
 							default:
@@ -147,6 +151,7 @@ void userUI(char path[], char username[])
 		switch(choice)
 		{
 			case 1:
+				cst_find_cma(path);
 				break;
 			case 2:
 				break;
@@ -154,6 +159,7 @@ void userUI(char path[], char username[])
 				changeInfo(path, username);
 				break;
 			case 4:
+				TopUp(path, username);
 				break;
 			case 5:
 				flag=0;
