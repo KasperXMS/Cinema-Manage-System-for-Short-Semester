@@ -27,26 +27,26 @@ typedef struct Order{  			//information of order
     	int month;
     	int day;
     	int hour;
-    	int min;
+    	int min;				//time when the order begins 
 	}date;
 	int cost;					//total cost of these seats
 }Order;
-typedef struct movie{			//³¡´ÎĞÅÏ¢½á¹¹Ìå
-    char SessioNum[13];     //³¡´ÎºÅ
-    char MovName[MAXSIZE];  //Ó°Æ¬Ãû
-    char CinName[MAXSIZE];  //Ó°ÔºÃû
-    int MovieRoom;          //Ó°Ìü
-    char Startime[6];           //¿ªÊ¼Ê±¼ä
-    char Stoptime[6];           //½áÊøÊ±¼ä
-    int time;               //×ÜÊ±³¤
-    int AllticketNum;       //×ÜÆ±Êı
-    int remainTicket;       //ÓàÆ±Êı
-    double price;           //Æ±¼Û
-    char language[20];      //ÓïÑÔÀàĞÍ
-    char MovType[6];        //Ó°Æ¬ÀàĞÍ
-    int row;                //×ÜÅÅÊı
-    int colum;              //×ÜÁĞÊı
-    int seat[MAXSIZE][MAXSIZE];//×ùÎ»ĞÅÏ¢
+typedef struct movie{			//åœºæ¬¡ä¿¡æ¯ç»“æ„ä½“
+    char SessioNum[13];     //åœºæ¬¡å·
+    char MovName[MAXSIZE];  //å½±ç‰‡å
+    char CinName[MAXSIZE];  //å½±é™¢å
+    int MovieRoom;          //å½±å…
+    char Startime[6];           //å¼€å§‹æ—¶é—´
+    char Stoptime[6];           //ç»“æŸæ—¶é—´
+    int time;               //æ€»æ—¶é•¿
+    int AllticketNum;       //æ€»ç¥¨æ•°
+    int remainTicket;       //ä½™ç¥¨æ•°
+    double price;           //ç¥¨ä»·
+    char language[20];      //è¯­è¨€ç±»å‹
+    char MovType[6];        //å½±ç‰‡ç±»å‹
+    int row;                //æ€»æ’æ•°
+    int colum;              //æ€»åˆ—æ•°
+    int seat[MAXSIZE][MAXSIZE];//åº§ä½ä¿¡æ¯
 }SessionDetail;
 void SetPositionByLine(FILE *fp,int line);
 Basic InfoOfUser();				//store the information that the user prints
@@ -61,45 +61,20 @@ Order SelectSeat(Order order,SessionDetail session);
 Order CompleteOrder(Order order,SessionDetail session);
 char *GetPath(Order order);			//get the path of the file of the session
 void DealOrder(Order order); 		//deal with the order and change information in the files of session
-int main ()
-{
-	int result=0,judge,legal1;
-	char Session[MAXSIZE];
+void Pay(Order order);
+void Recover(Order order);
+void OrderSystem();
+
 	Basic basics;
 	Order order;
 	SessionDetail Detail;
-	basics = InfoOfUser();			//ÓÃ»§ÊäÈëID ÓëÓ°Æ¬/Ó°ÔºÃû 
-	result = JudgeID(basics);		//ÅĞ¶ÏIDÊÇ·ñºÏ·¨ ²¢ÇÒÅĞ¶ÏÆäÊäÈëµÄÊÇÓ°Æ¬»¹ÊÇÓ°Ôº 
-	if (result != 0)
-	{
-		order = CreateOrder(basics);	
-		if (result == 1)
-			strcpy(Session,MovieSearch(basics));    
-		else 
-			strcpy(Session,CinemaSearch(basics));  //ÀûÓÃº¯Êı»ñµÃÓÃ»§Ïë¶©¹ºµÄ³¡´Î 
-		Detail = ReadSession(Session);      	   //Í¨¹ıÓÃ»§Ñ¡Ôñ³¡´ÎµÄ³¡´Î·µ»¹¸ü¾ßÌåµÄĞÅÏ¢ 
-		order = SelectSeat(order,Detail);		   //ÓÃ»§¿ªÊ¼Ñ¡×ù 
-		order = CompleteOrder(order,Detail);	   //ÓÃ»§×îºóÈ·ÈÏ¶©µ¥ 
-		if (order.del == 1)						   //ÈôÓÃ»§ÏëÒªÉ¾³ı¶©µ¥ 
-			printf("Delete Order Successfully!\n");//Ö±½ÓÉ¾³ı£¬¶©µ¥ÎŞĞ§ 
-			else
-			{
-				if (order.legal == 1)//Èç¹û¶©µ¥ÓĞĞ§ 
-				{
-					DealOrder(order);
-					if (order.legal == 1)
-						printf("Order Tickets Successfully!\n");
-					else
-						printf("There is something wrong with the system...\n");
-				}
-				else if (order.legal == 0)
-					printf("Fail To Order Tickets!\n");
-			}
-	} 
+int main ()
+{
+	OrderSystem();
 	return 0;
 } 
 
-void SetPositionByLine(FILE *fp,int line){   //½«ÎÄ¼şÖ¸Õë¶¨Î»µ½Ö¸¶¨ĞĞ
+void SetPositionByLine(FILE *fp,int line){   //å°†æ–‡ä»¶æŒ‡é’ˆå®šä½åˆ°æŒ‡å®šè¡Œ
     int i=0;
     char buffer[MAX_LENGTH_OF_LINE+1]={'\0'};
     fpos_t pos;
@@ -124,9 +99,9 @@ int JudgeID(Basic basics)
 	FILE *fptr=NULL;
 	strcpy(id,basics.IdOfUser);
 	strcat(id,"\n");
-	for (j = 0;find != 1;j++)//ÕÒµ½ÁË¾ÍÍË³ö 
+	for (j = 0;find != 1;j++)//æ‰¾åˆ°äº†å°±é€€å‡º 
 	{
-		if ((fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r")) == NULL)//ÔÚÓÃ»§ÃûÎÄ¼şÀïÕÒÈË 
+		if ((fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r")) == NULL)//åœ¨ç”¨æˆ·åæ–‡ä»¶é‡Œæ‰¾äºº 
 			{
 				printf("Fail to read!\n");
 				l = 0;
@@ -134,12 +109,12 @@ int JudgeID(Basic basics)
 			}
 			else
 				fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r");
-			while(fgets(Id,12,fptr) != NULL && find != 1)//±éÀúÃ¿ĞĞµÄid£¬Ö±ÖÁÕÒµ½»òÕßÈ«²¿ËÑÍê 
+			while(fgets(Id,12,fptr) != NULL && find != 1)//éå†æ¯è¡Œçš„idï¼Œç›´è‡³æ‰¾åˆ°æˆ–è€…å…¨éƒ¨æœå®Œ 
      		{
-     			if (strcmp(id,Id) == 0)//ÕÒµ½¶ÔÓ¦µÄÓÃ»§id 
+     			if (strcmp(id,Id) == 0)//æ‰¾åˆ°å¯¹åº”çš„ç”¨æˆ·id 
      			{
 					find = 1;
-					printf("Successfully Find The User!\n");//Ñ°ÕÒµ½ÁËÓÃ»§µÄID 
+					printf("Successfully Find The User!\n");//å¯»æ‰¾åˆ°äº†ç”¨æˆ·çš„ID 
 					if (strlen(basics.MovieOrCinema) == 4)
 						l = 2;
 					else
@@ -147,7 +122,7 @@ int JudgeID(Basic basics)
 					return l;
 				}
      		}
-     		if (fgets(Id,12,fptr) == NULL && find != 1 )//±éÀúÍê²¢ÇÒÃ»ÓĞÕÒµ½ 
+     		if (fgets(Id,12,fptr) == NULL && find != 1 )//éå†å®Œå¹¶ä¸”æ²¡æœ‰æ‰¾åˆ° 
 			{
 				printf("Can't Find The User!\n");
 				l = 0;
@@ -185,7 +160,7 @@ char *MovieSearch(Basic basics)
 	FILE *fptr=NULL,*fptr1=NULL;
 	strcpy(path,"C:/Users/DELL/Desktop/IOCS/cma_info");
 	strcat(path,basics.MovieOrCinema);
-	strcat(path,".txt");//´ò¿ª¶ÔÓ¦µÄĞ´×ÅÓ°Æ¬ÃûµÄÎÄ¼ş£¬¶ÁÈ¡ËùÓĞ¸ÃÓ°Æ¬µÄ³¡´Î±àºÅ 
+	strcat(path,".txt");//æ‰“å¼€å¯¹åº”çš„å†™ç€å½±ç‰‡åçš„æ–‡ä»¶ï¼Œè¯»å–æ‰€æœ‰è¯¥å½±ç‰‡çš„åœºæ¬¡ç¼–å· 
 	if ((fptr = fopen(path,"r")) == NULL)
 	{
 		printf("Open Fail Failure...\n");
@@ -193,65 +168,72 @@ char *MovieSearch(Basic basics)
 	}
 	else 
 	{
-		fptr = fopen(path,"r");//´ò¿ªÓ°Æ¬ÃûÎÄ¼ş 
-		for (i = 0;fgets(Changci,MAXSIZE,fptr) != NULL;i++)//¶ÁÈ¡Ã¿ĞĞµÄ³¡´Î±àºÅ 
-		{
-			fscanf(fptr,"%s",Changci);
-			strcpy(path1,"C:/Users/DELL/Desktop/IOCS/sessions/");
-			strcat(path1,Changci);
-			strcat(path1,".ses");//¶ÁÈ¡³¡´Î±àºÅÎÄ¼ş 
-			if ((fptr1 = fopen(path1,"r")) == NULL)
+		fptr = fopen(path,"r");//æ‰“å¼€å½±ç‰‡åæ–‡ä»¶ 
+		if(fgets(Changci,MAXSIZE,fptr) == NULL)
+			printf("No Session Now For This Movie.\n");
+		else
+		{ 
+			for (i = 0;fgets(Changci,MAXSIZE,fptr) != NULL;i++)//è¯»å–æ¯è¡Œçš„åœºæ¬¡ç¼–å· 
 			{
-				printf("Open Fail Failure...\n");
-				return NULL;
-			}
-				else
+				fscanf(fptr,"%s",Changci);
+				strcpy(path1,"C:/Users/DELL/Desktop/IOCS/sessions/");
+				strcat(path1,Changci);
+				strcat(path1,".ses");//è¯»å–åœºæ¬¡ç¼–å·æ–‡ä»¶ 
+				if ((fptr1 = fopen(path1,"r")) == NULL)
 				{
-					printf("      Cinema            Movie            Date      Hall      Session      Price\n");
-					char CC[MAXSIZE]="\0";
-					int line=0,column=0;
-					char MOVIENAME[MAXSIZE]="\0",CINEMA[MAXSIZE]="\0",DATE[4]="\0",START[6]="\0",END[6]="\0";
-					char LANG[6]="\0",TYPE[6]="\0",COUPON[MAXSIZE]="\0";
-					int HALL=0,LENGTH=0,TOTAL=0,REMAIN=0;
-					double PRICE=0.0;
-					fptr1 = fopen(path1,"r");
-					fscanf(fptr1,"%s",CC);
-					fscanf(fptr1,"%s",MOVIENAME);
-					fscanf(fptr1,"%s",CINEMA);
-					fscanf(fptr1,"%d",&HALL);
-					fscanf(fptr1,"%s",START);
-					fscanf(fptr1,"%s",END);
-					fscanf(fptr1,"%d",&LENGTH);
-					fscanf(fptr1,"%d",&TOTAL);
-					fscanf(fptr1,"%d",&REMAIN);
-					fscanf(fptr1,"%lf",&PRICE);//°´Ã¿ĞĞË³Ğò¶ÁÈ¡ËùĞèÊı¾İ 
-					fscanf(fptr1,"%s",LANG);
-					fscanf(fptr1,"%s",TYPE);
-					fscanf(fptr1,"%s",COUPON);
-					fscanf(fptr1,"%d",&line);
-					fscanf(fptr1,"%d",&column);
-					for (i = 4;i < 8;i++)
-						DATE[i] = CC[i];//ÈÕÆÚĞÅÏ¢´Ó³¡´Î±àºÅÖĞ»ñÈ¡ 
-					printf("%10s%24s%13d%10d%16s%9.2lf\n",CINEMA,MOVIENAME,DATE,HALL,CC,PRICE);//´òÓ¡ËùÓĞµÄ¸ÃÓ°Æ¬³¡´Î¾ßÌåĞÅÏ¢ 
-					printf("Please Enter The Session You Want To Order:");
-					scanf("%s",Changci);//ÓÃ»§ÊäÈëÏëÒªµÄ³¡´Î 
+					printf("Open Fail Failure...\n");
+					return NULL;
 				}
+					else
+					{
+						printf("      Cinema            Movie            Date      Hall      Session      Price\n");
+						char CC[MAXSIZE]="\0";
+						int line=0,column=0;
+						char MOVIENAME[MAXSIZE]="\0",CINEMA[MAXSIZE]="\0",DATE[4]="\0",START[6]="\0",END[6]="\0";
+						char LANG[6]="\0",TYPE[6]="\0",COUPON[MAXSIZE]="\0";
+						int HALL=0,LENGTH=0,TOTAL=0,REMAIN=0;
+						double PRICE=0.0;
+						fptr1 = fopen(path1,"r");
+						fscanf(fptr1,"%s",CC);
+						fscanf(fptr1,"%s",MOVIENAME);
+						fscanf(fptr1,"%s",CINEMA);
+						fscanf(fptr1,"%d",&HALL);
+						fscanf(fptr1,"%s",START);
+						fscanf(fptr1,"%s",END);
+						fscanf(fptr1,"%d",&LENGTH);
+						fscanf(fptr1,"%d",&TOTAL);
+						fscanf(fptr1,"%d",&REMAIN);
+						fscanf(fptr1,"%lf",&PRICE);//æŒ‰æ¯è¡Œé¡ºåºè¯»å–æ‰€éœ€æ•°æ® 
+						fscanf(fptr1,"%s",LANG);
+						fscanf(fptr1,"%s",TYPE);
+						fscanf(fptr1,"%s",COUPON);
+						fscanf(fptr1,"%d",&line);
+						fscanf(fptr1,"%d",&column);
+						for (i = 4;i < 8;i++)
+							DATE[i] = CC[i];//æ—¥æœŸä¿¡æ¯ä»åœºæ¬¡ç¼–å·ä¸­è·å– 
+						printf("%10s%24s%13d%10d%16s%9.2lf\n",CINEMA,MOVIENAME,DATE,HALL,CC,PRICE);//æ‰“å°æ‰€æœ‰çš„è¯¥å½±ç‰‡åœºæ¬¡å…·ä½“ä¿¡æ¯ 
+						printf("Please Enter The Session You Want To Order:");
+						scanf("%s",Changci);//ç”¨æˆ·è¾“å…¥æƒ³è¦çš„åœºæ¬¡ 
+					}
+			}
 		}
 	}
 	return Changci;
 }
 char *CinemaSearch(Basic basics)
 {
+	FILE *fp=NULL;
 	char cma[20]="\0";
 	static char seSSion[MAXSIZE]="\0";
 	strcpy(cma,basics.MovieOrCinema);
-	char to_search[MAXSIZE] = "D:/workplace/cma_info/*txt"; //Óû²éÕÒµÄÎÄ¼ş£¬Ö§³ÖÍ¨Åä·û
-    long handle;                                       //ÓÃÓÚ²éÕÒµÄ¾ä±ú
-    struct _finddata_t fileinfo;                       //ÎÄ¼şĞÅÏ¢µÄ½á¹¹Ìå
+	char to_search[MAXSIZE] = "D:/workplace/cma_info/*txt"; //æ¬²æŸ¥æ‰¾çš„æ–‡ä»¶ï¼Œæ”¯æŒé€šé…ç¬¦
+    long handle;                                       //ç”¨äºæŸ¥æ‰¾çš„å¥æŸ„
+    struct _finddata_t fileinfo;                       //æ–‡ä»¶ä¿¡æ¯çš„ç»“æ„ä½“
     handle = _findfirst(to_search, &fileinfo);
     //printf("%s\n", fileinfo.name);
-    //´ò¿ªËù±éÀúµ½µÄÎÄ¼ş
+    //æ‰“å¼€æ‰€éå†åˆ°çš„æ–‡ä»¶
     char pathA[255] = "D:/workplace";
+    char path3[MAXSIZE] ="\0";
     char filename[255] = {'\0'};
     char str[255] = {'\0'};
     strcat(cma, ".txt");
@@ -263,7 +245,7 @@ char *CinemaSearch(Basic basics)
         strcat(pathA, filename);
         FILE *fp = NULL;
         fp = fopen(pathA, "r");
-        printf("´ËµçÓ°ÔºµÄÓ°Æ¬³¡´ÎÈçÏÂ£º\n");
+        printf("æ­¤ç”µå½±é™¢çš„å½±ç‰‡åœºæ¬¡å¦‚ä¸‹ï¼š\n");
         fgets(str, 255, (FILE *)fp);
         while (!feof(fp))
         {
@@ -271,7 +253,7 @@ char *CinemaSearch(Basic basics)
             fgets(str, 255, (FILE *)fp);
         }
     }
-    while (!_findnext(handle, &fileinfo)) //Ñ­»·²éÕÒÆäËû·ûºÏµÄÎÄ¼ş£¬ÖªµÀÕÒ²»µ½ÆäËûµÄÎªÖ¹
+    while (!_findnext(handle, &fileinfo)) //å¾ªç¯æŸ¥æ‰¾å…¶ä»–ç¬¦åˆçš„æ–‡ä»¶ï¼ŒçŸ¥é“æ‰¾ä¸åˆ°å…¶ä»–çš„ä¸ºæ­¢
     {
         //printf("%s\n", fileinfo.name);
         if (strcmp(cma, fileinfo.name) == 0)
@@ -284,7 +266,7 @@ char *CinemaSearch(Basic basics)
             FILE *fp = NULL;
             fp = fopen(pathA, "r");
             char str[255];
-            printf("´ËµçÓ°ÔºµÄÓ°Æ¬³¡´ÎÈçÏÂ£º\n");
+            printf("Current Sessions For This Cinema ï¼š\n");
             fgets(str, 255, (FILE *)fp);
             while (!feof(fp))
             {
@@ -295,14 +277,23 @@ char *CinemaSearch(Basic basics)
     }
     if (temp == 0)
     {
-        printf("ÄãÊäÈëµÄÓ°Ôº²»´æÔÚ");
+        printf("No Such Cinema Or This Cinema Has No Session Nowï¼");
+        return NULL;
     }
+    _findclose(handle); //åˆ«å¿˜äº†å…³é—­å¥æŸ„
     printf("Please Enter The Session You Want To Order: ");
     scanf("%s",seSSion);
-    _findclose(handle); //±ğÍüÁË¹Ø±Õ¾ä±ú
+    strcpy(path3,"C:/Users/DELL/Desktop/IOCS/sessions/");
+	strcat(path3,seSSion);
+	strcat(path3,".ses");//è¯»å–åœºæ¬¡ç¼–å·æ–‡ä»¶ 
+	if ((fp = fopen(path3,"r")) == NULL)
+	{
+		printf("Open Fail Failure...\n");
+		return NULL;
+	}
     return seSSion;
 }
-SessionDetail ReadSession(char sessionum[]){//½«³¡´ÎĞÅÏ¢ÎÄ¼şĞ´Èë½á¹¹ÌåÖĞ
+SessionDetail ReadSession(char sessionum[]){//å°†åœºæ¬¡ä¿¡æ¯æ–‡ä»¶å†™å…¥ç»“æ„ä½“ä¸­
     SessionDetail temp;
     int i,j,seat=0,seatx=0,seaty=0;
     char str[5]={'\0'};
@@ -332,18 +323,20 @@ SessionDetail ReadSession(char sessionum[]){//½«³¡´ÎĞÅÏ¢ÎÄ¼şĞ´Èë½á¹¹ÌåÖĞ
     fclose(fp);
     return temp;
 }
-bool Order_Is_Legal(Order order,SessionDetail session){
+bool Order_Is_Legal(Order order,SessionDetail session){//æ­¤å¤„æœ‰æ‰€ä¿®æ”¹ 
     int i,j,flag=1;
     for(i=0;i<order.SeatNum&&flag;i++)
-        for(j=0;j<order.SeatNum&&flag;j++)
-            if(session.seat[order.seat[i][j]-1][order.seat[i][j]-1]||
-               session.seat[order.seat[i][j]+1][order.seat[i][j]+1])
+    {   // for(j=0;j<order.SeatNum&&flag;j++)
+            if(session.seat[order.seat[i][0]-1][order.seat[i][1]-1]||
+               session.seat[order.seat[i][0]+1][order.seat[i][1]+1]||
+			   order.seat[i][0] > session.row||order.seat[i][1] > session.colum)
                 flag=0;
-    return flag;
+	}
+	return flag;
 }
 void CurrentSeat(SessionDetail session){
     int i,j;
-    printf("µ±Ç°Ñ¡×ùÇé¿öÈçÍ¼£º\n");
+    printf("å½“å‰é€‰åº§æƒ…å†µå¦‚å›¾ã€‚å…¶ä¸­1ä»£è¡¨è¯¥ä½ç½®å·²è¢«å ç”¨ï¼Œ0ä»£è¡¨è¯¥ä½ç½®å¯ä»¥é€‰æ‹©ã€‚\n");
     for(i=0;i<session.row;i++){
         for(j=0;j<session.colum;j++){
             if(j==session.colum-1)
@@ -356,26 +349,26 @@ void CurrentSeat(SessionDetail session){
 Order SelectSeat(Order order,SessionDetail session){
     int i=0,flag;
     
-    printf("ÇëÊäÈëÔ¤¶©×ùÎ»Êı:");
+    printf("è¯·è¾“å…¥é¢„è®¢åº§ä½æ•°:");
     scanf("%d",&order.SeatNum);
-    if(order.SeatNum>3){//¹ºÆ±Êı´óÓÚÓàÆ±Êı»òÕß¹ºÆ±Êı´óÓÚ3¶¼±íÊ¾¶©µ¥Ê§°Ü
-        printf("Ò»¸ö³¡´Î×î¶àÖ»ÔÊĞí¶©Èı¸ö×ùÎ»!ÇëÖØĞÂÊäÈë¹ºÂò×ùÎ»Êı:");
+    if(order.SeatNum>3){//è´­ç¥¨æ•°å¤§äºä½™ç¥¨æ•°æˆ–è€…è´­ç¥¨æ•°å¤§äº3éƒ½è¡¨ç¤ºè®¢å•å¤±è´¥
+        printf("ä¸€ä¸ªåœºæ¬¡æœ€å¤šåªå…è®¸è®¢ä¸‰ä¸ªåº§ä½!è¯·é‡æ–°è¾“å…¥è´­ä¹°åº§ä½æ•°:");
         scanf("%d",&order.SeatNum);
     }
     if(session.remainTicket<order.SeatNum){
-        printf("Ê£ÓàÆ±ÊıÎª%dÕÅ,ÄúÊÇ·ñÒª¼ÌĞø¹ºÂò?\n",session.remainTicket);
+        printf("å‰©ä½™ç¥¨æ•°ä¸º%då¼ ,æ‚¨æ˜¯å¦è¦ç»§ç»­è´­ä¹°?\n",session.remainTicket);
         scanf("%d",&flag);
         if(flag){
-            printf("ÇëÊäÈë¹ºÂò×ùÎ»Êı:");
+            printf("è¯·è¾“å…¥è´­ä¹°åº§ä½æ•°:");
             scanf("%d",&order.SeatNum);
         }
     }
-    CurrentSeat(session);                      //Ïò¿Í»§ÏÔÊ¾µ±Ç°×ùÎ»ĞÅÏ¢
-    printf("ÇëÊäÈë×ùÎ»ĞÅÏ¢:");
+    CurrentSeat(session);                      //å‘å®¢æˆ·æ˜¾ç¤ºå½“å‰åº§ä½ä¿¡æ¯
+    printf("è¯·è¾“å…¥åº§ä½ä¿¡æ¯:");
     for(i=0;i<order.SeatNum;i++)
         scanf("%d%d",&order.seat[i][0],&order.seat[i][1]);
     if(Order_Is_Legal(order, session)==0){
-        printf("ÇëÖØĞÂÑ¡×ù!\n");
+        printf("è¯·é‡æ–°é€‰åº§!\n");
         for(i=0;i<order.SeatNum;i++)
             scanf("%d%d",&order.seat[i][0],&order.seat[i][1]);
     }
@@ -400,13 +393,14 @@ char *GetPath(Order order)
 	strcpy(cc, order.Sessions);
 	for (k = 0;cc[k] != '\n';k++);
 		cc[k] = '\0';
-	strcat(cc,iD);//SerialNum¼´Îª¸Ã³¡´ÎµÄÎÄ¼şÃû    
+	strcat(cc,iD);//SerialNumå³ä¸ºè¯¥åœºæ¬¡çš„æ–‡ä»¶å    
 	strcpy(path,"C:/Users/DELL/Desktop/IOCS/sessions/");
 	strcat(path,cc);
 	for (k = 0;path[k] != '\0';k++);
-		path[k] = '\0'; //½ØÈ¡³öÕıÈ·µÄÎÄ¼şÂ·¾¶£¬·ÅÈëpath 
+		path[k] = '\0'; //æˆªå–å‡ºæ­£ç¡®çš„æ–‡ä»¶è·¯å¾„ï¼Œæ”¾å…¥path 
 	return path;
-} 
+}
+
 void DealOrder(Order order)
 {
 	FILE *fptr=NULL,*fptr1=NULL,*fptr2=NULL;
@@ -414,18 +408,18 @@ void DealOrder(Order order)
 	char cinema1[5]="\0",lang[4]="\0",type[4]="\0",coupon[MAXSIZE]="\0",endtime[6]="\0";
 	int  line=0,column=0,hall=0,totalseat=0,remain=0,length=0;
 	double price=0.0;
-	int *Occupied=NULL;  //ÓÃÓÚ¶ÁÈ¡³¡´ÎÎÄ¼şÀïµÄ¸÷ÏîÊı¾İ/×Ö·û
-	int seat1=0,remain1=0,k=0,k1=0,k2=0,k3=0,l=0;//Õ¼µÄ×ùÎ»µÄÌí¼Ó 
+	int *Occupied=NULL;  //ç”¨äºè¯»å–åœºæ¬¡æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®/å­—ç¬¦
+	int seat1=0,remain1=0,k=0,k1=0,k2=0,k3=0,l=0;//å çš„åº§ä½çš„æ·»åŠ  
 	int SW=0,GW=0;
 	strcpy(path,GetPath(order));		
-		if((fptr = fopen(path,"r+")) == NULL)//Ñ°ÕÒÃû×Ö½Ğ¸Ã³¡´ÎµÄ³¡´ÎÎÄ¼ş (¸ÃÄ¿Â¼ÏÂ£© 
+		if((fptr = fopen(path,"r+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 		{
         	printf("Open the file failure...\n");
         	order.legal = 0;
     	}
     		else
 			{
-				fptr = fopen(path,"r+");//Ã¿ĞĞ¶ÁÈë¸Ã³¡´ÎÎÄ¼şÖĞµÄ¶ÔÓ¦Êı¾İ£¬·ÅÔÚ±äÁ¿Àï 
+				fptr = fopen(path,"r+");//æ¯è¡Œè¯»å…¥è¯¥åœºæ¬¡æ–‡ä»¶ä¸­çš„å¯¹åº”æ•°æ®ï¼Œæ”¾åœ¨å˜é‡é‡Œ 
 				fscanf(fptr,"%s",SerialNum);
 			    fscanf(fptr,"%s",moviename1);
 			    fscanf(fptr,"%s",cinema1);
@@ -453,16 +447,16 @@ void DealOrder(Order order)
 					for (k = 0;k < totalseat - remain;k++)
 						fscanf(fptr,"%d",&Occupied[k]);
 					remain1 = remain;
-					remain -= order.SeatNum;//¸ÃÆ±¹ºÂò£¬Ê£ÓàÆ±Êı-1 
-					fclose(fptr);//¹Ø±ÕÎÄ¼ş 
-					if((fptr1 = fopen(path,"w+")) == NULL)//Ñ°ÕÒÃû×Ö½Ğ¸Ã³¡´ÎµÄ³¡´ÎÎÄ¼ş (¸ÃÄ¿Â¼ÏÂ£© 
+					remain -= order.SeatNum;//è¯¥ç¥¨è´­ä¹°ï¼Œå‰©ä½™ç¥¨æ•°-1 
+					fclose(fptr);//å…³é—­æ–‡ä»¶ 
+					if((fptr1 = fopen(path,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 					{
         				printf("Open the file failure...\n");
         				order.legal = 0; 
     				}
     					else
     					{
-							fptr1 = fopen(path,"w+");//°Ñ´æÔÚ¸÷¸ö±äÁ¿ÀïµÄ³¡´ÎĞÅÏ¢ÎÄ¼şÀïµÄ¸÷ÏîÊı¾İÅª»Ø¸ÃÎÄ¼ş£¬·½±ãĞŞ¸ÄÆ±ÓàÊı 
+							fptr1 = fopen(path,"w+");//æŠŠå­˜åœ¨å„ä¸ªå˜é‡é‡Œçš„åœºæ¬¡ä¿¡æ¯æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®å¼„å›è¯¥æ–‡ä»¶ï¼Œæ–¹ä¾¿ä¿®æ”¹ç¥¨ä½™æ•° 
 							fprintf(fptr1,"%s\n",SerialNum);
 							fprintf(fptr1,"%s\n",moviename1);
 			    			fprintf(fptr1,"%s\n",cinema1);
@@ -481,13 +475,8 @@ void DealOrder(Order order)
 							for (k = 0;k < totalseat - remain1;k++)
 								fprintf(fptr1,"%d\n",Occupied[k]);
 							fclose(fptr1);
-							for (k2 = 0;k2 < totalseat - remain1;k2++)
-							{
-								SW = Occupied[k2] / 100;
-								GW = Occupied[k2] - SW * 100;
-							}
 						}
-					if((fptr2 = fopen(path,"a")) == NULL)//Ñ°ÕÒÃû×Ö½Ğ¸ÃÓ°ÌüµÄÓ°ÌüÎÄ¼ş (¸ÃÄ¿Â¼ÏÂ£© 
+					if((fptr2 = fopen(path,"a")) == NULL)//å¯»æ‰¾åå­—å«è¯¥å½±å…çš„å½±å…æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
 					{
         				remain += order.SeatNum;
 						printf("Open the file failure...\n");
@@ -501,11 +490,160 @@ void DealOrder(Order order)
 								SW = order.seat[k][0] * 100;
 								GW = order.seat[k][1];
 								seat1 = SW + GW;
-								fprintf(fptr2,"%d\n",seat1);//ÔÚÓ°ÌüÎÄ¼şÖĞ×îºóÃ¿ĞĞÃ¿ĞĞÌí¼ÓÒÑÕ¼×ùÎ»Êı 
+								fprintf(fptr2,"%d\n",seat1);//åœ¨å½±å…æ–‡ä»¶ä¸­æœ€åæ¯è¡Œæ¯è¡Œæ·»åŠ å·²å åº§ä½æ•° 
 							}
 							fclose(fptr2);
 							order.legal = 1;
 						}
 				}
 			}
+}
+int TIME(Order order)
+{
+	int timeexceed=0;
+	long long int totaltime=0,ordertime=0;
+	time_t It;
+	time(&It);
+	struct tm* ptr;
+	ptr = localtime(&It);
+	return timeexceed;
+}
+void Pay(Order order)
+{
+
+}
+void Recover(Order order)
+{
+	FILE *fpt=NULL,*fpt1=NULL;
+	int k=0;
+	char path4[255]="\0",SerialNum[MAXSIZE] = "\0",moviename1[MAXSIZE] = "\0",starttime[6]="\0";
+	char cinema1[5]="\0",lang[4]="\0",type[4]="\0",coupon[MAXSIZE]="\0",endtime[6]="\0";
+	int  line=0,column=0,hall=0,totalseat=0,remain=0,length=0;
+	double price=0.0;
+	int *Occupied1=NULL;  //ç”¨äºè¯»å–åœºæ¬¡æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®/å­—ç¬¦
+	strcpy(path4,GetPath(order));		
+		if((fpt = fopen(path4,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
+        printf("Open the file failure.Fail to recover.\n");
+    	else
+		{
+			fpt = fopen(path4,"w+");//æ¯è¡Œè¯»å…¥è¯¥åœºæ¬¡æ–‡ä»¶ä¸­çš„å¯¹åº”æ•°æ®ï¼Œæ”¾åœ¨å˜é‡é‡Œ 
+			fscanf(fpt,"%s",SerialNum);
+		    fscanf(fpt,"%s",moviename1);
+		    fscanf(fpt,"%s",cinema1);
+			fscanf(fpt,"%d",&hall);
+			fscanf(fpt,"%s",starttime);
+			fscanf(fpt,"%s",endtime);
+			fscanf(fpt,"%d",&length);
+			fscanf(fpt,"%d",&totalseat);
+			fscanf(fpt,"%d",&remain);
+			fscanf(fpt,"%lf",&price);
+			fscanf(fpt,"%s",lang);
+			fscanf(fpt,"%s",type);
+			fscanf(fpt,"%s",coupon);
+			fscanf(fpt,"%d",&line);
+			fscanf(fpt,"%d",&column);
+			Occupied1 = (int *)malloc((totalseat - remain) * sizeof(int));
+			if (!Occupied1)
+			{
+				printf("Can't create the array!Fail to recover.\n");
+				fclose(fpt);
+			}
+			else
+			{
+				for (k = 0;k < totalseat - remain;k++)
+					fscanf(fpt,"%d",&Occupied1[k]);
+				remain += order.SeatNum;//
+				fclose(fpt);//å…³é—­æ–‡ä»¶ 
+				if((fpt1 = fopen(path4,"w+")) == NULL)//å¯»æ‰¾åå­—å«è¯¥åœºæ¬¡çš„åœºæ¬¡æ–‡ä»¶ (è¯¥ç›®å½•ä¸‹ï¼‰ 
+				{
+        			printf("Open the file failure...\n");
+        			order.legal = 0; 
+    			}
+    				else
+    				{
+						fpt1 = fopen(path4,"w+");//æŠŠå­˜åœ¨å„ä¸ªå˜é‡é‡Œçš„åœºæ¬¡ä¿¡æ¯æ–‡ä»¶é‡Œçš„å„é¡¹æ•°æ®å¼„å›è¯¥æ–‡ä»¶ï¼Œæ–¹ä¾¿ä¿®æ”¹ç¥¨ä½™æ•° 
+						fprintf(fpt1,"%s\n",SerialNum);
+						fprintf(fpt1,"%s\n",moviename1);
+			   			fprintf(fpt1,"%s\n",cinema1);
+						fprintf(fpt1,"%d\n",hall);
+						fprintf(fpt1,"%s\n",starttime);
+						fprintf(fpt1,"%s\n",endtime);
+						fprintf(fpt1,"%d\n",length);
+						fprintf(fpt1,"%d\n",totalseat);
+						fprintf(fpt1,"%d\n",remain);
+						fprintf(fpt1,"%lf\n",price);
+						fprintf(fpt1,"%s\n",lang);
+						fprintf(fpt1,"%s\n",type);
+						fprintf(fpt1,"%s\n",coupon);
+						fprintf(fpt1,"%d\n",line);
+						fprintf(fpt1,"%d\n",column);
+						for (k = 0;k < totalseat - remain;k++)
+						fprintf(fpt1,"%d\n",Occupied1[k]);
+						fclose(fpt1);
+					} 
+			} 
+		} 
+}
+void OrderSystem()
+{
+	int result=0,judge,legal1,i=0,XZ=0,i1=0,SRHF=0,TimeExceed=0;
+	char Session[MAXSIZE];
+	basics = InfoOfUser();			//ç”¨æˆ·è¾“å…¥ID ä¸å½±ç‰‡/å½±é™¢å 
+	result = JudgeID(basics);		//åˆ¤æ–­IDæ˜¯å¦åˆæ³• å¹¶ä¸”åˆ¤æ–­å…¶è¾“å…¥çš„æ˜¯å½±ç‰‡è¿˜æ˜¯å½±é™¢ 
+	SRHF = 0;
+	TimeExceed = 0;
+	time_t It;
+	if (result != 0)
+	{
+		for (i1 = 0;SRHF != 1;i1++)
+		{		
+			order = CreateOrder(basics);	
+			if (result == 1 && MovieSearch(basics) != NULL)
+			{
+				strcpy(Session,MovieSearch(basics));    
+				SRHF = 1;
+			}
+			else if (result == 2 && CinemaSearch(basics) != NULL)
+			{
+				strcpy(Session,CinemaSearch(basics));  //åˆ©ç”¨å‡½æ•°è·å¾—ç”¨æˆ·æƒ³è®¢è´­çš„åœºæ¬¡ 
+				SRHF = 1;
+			}
+			else 
+				SRHF = 0;
+			if (SRHF == 1)
+			{
+				Detail = ReadSession(Session); //é€šè¿‡ç”¨æˆ·é€‰æ‹©çš„åœºæ¬¡è¿”è¿˜æ›´å…·ä½“çš„ä¿¡æ¯ 
+				XZ = 0;     	   
+				for (i = 0;XZ != 1;i++)
+				{
+					order = SelectSeat(order,Detail);		   //ç”¨æˆ·å¼€å§‹é€‰åº§ 
+					order = CompleteOrder(order,Detail);	   //ç”¨æˆ·æœ€åç¡®è®¤è®¢å• ä¼ è¿‡æ¥çš„è®¢å•ä¸€å®šæ˜¯åˆæ³•çš„ 
+					DealOrder(order);
+					if (order.legal == 1) 
+					{
+						printf("Do you want to delete your order ? If you want to delete, please print 1;if not, please print 0.");
+						scanf("%d",&order.del);
+						if (order.del == 0)//å¦‚æœè®¢å•æœ‰æ•ˆ 
+						{
+							TimeExceed = TIME(order);
+							if (TimeExceed == 0)//æœªè¶…æ—¶ 
+							{
+								Pay(order);
+								printf("Order Tickets Successfully!\n");
+							}
+							else
+								printf("Time Out For The Order! Please Try Again!\n");
+						}
+						else if (order.del == 1)
+						{
+							Recover(order);
+							printf("Delete The Order Successfully!\n");
+						}
+					}
+					else if (order.legal == 0)
+						printf("Fail To Order Tickets!\n");
+				}
+			} 
+		}
+	}
 }
