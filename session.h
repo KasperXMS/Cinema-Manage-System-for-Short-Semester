@@ -1,3 +1,4 @@
+#define MAXSIZE 101
 typedef struct movie{//场次信息结构体
     char SessioNum[13];     //场次号
     char MovName[MAXSIZE];  //影片名
