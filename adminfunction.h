@@ -17,6 +17,7 @@ void studio_info(char path[]);
 void add_session_info(char path[]);
 void session_classified(char path[]);
 int session_arrange(char path[], char cinema[], int newhall, int newstart, int newtime);
+void manager_find_order(char path[]);
 void Changeinfo(char path[], char username[])
 {
     FILE *in, *out;
@@ -575,5 +576,102 @@ int session_arrange(char path[], char cinema[], int newhall, int newstart, int n
         fprintf(stderr, "File open error_1!\n");
     }
     return value;
+}
+void manager_find_order(char path[])
+{
+    getchar();
+    char cma[20];
+    printf("请输入你要所在的影院：");
+    gets(cma);
+    char to_search[101] = {'\0'};
+    strncpy(to_search, path, strlen(path) - 8);
+    strcat(to_search, "order_info\\*.txt");
+    long handle;                               //用于查找的句柄
+    struct _finddata_t fileinfo;               //文件信息的结构体
+    handle = _findfirst(to_search, &fileinfo); //第一次查找
+    //printf("%s\n", fileinfo.name);
+    //打开所遍历到的文件
+    char pathA[255] = {'\0'};
+    strncpy(pathA, path, strlen(path) - 9);
+    char filename[255] = {'\0'};
+    wsprintf(filename, "\\order_info\\%s", fileinfo.name);
+    strcat(pathA, filename);
+    FILE *fp = NULL;
+    fp = fopen(pathA, "r");
+    char str[6][255];
+    memset(str, '\0', sizeof(str));
+    char *p;
+    int i;
+    int num = 0;
+    //查找文件中所属的影院
+    for (i = 0; i < 6; i++)
+    {
+        fgets(str[i], 255, (FILE *)fp);
+    }
+    //对比文件所属影院与待查找影院，符合则录入
+    strtok(str[5], "\n");
+    if (strcmp(str[5], cma) == 0)
+    {
+        num++;
+        printf("你所在的影院有以下几个用户订单：\n");
+        printf("%s", str[0]);
+    }
+    while (!_findnext(handle, &fileinfo)) //继续遍历文件夹的文件
+    {
+        //printf("%s\n", fileinfo.name);
+        memset(pathA, '\0', sizeof(pathA));
+        strncpy(pathA, path, strlen(path) - 9);
+        wsprintf(filename, "/order_info/%s", fileinfo.name);
+        strcat(pathA, filename);
+        FILE *fp = NULL;
+        fp = fopen(pathA, "r");
+        for (i = 0; i < 6; i++)
+        {
+            fgets(str[i], 255, (FILE *)fp);
+        }
+        p = strtok(str[5], "\n");
+        if (strcmp(str[5], cma) == 0)
+        {
+            num++;
+            if (num == 1)
+            {
+                printf("你所在的影院有以下几个用户订单：\n");
+            }
+            printf("%s", str[0]);
+        }
+    }
+    char cont = 'y';
+    while (cont == 'y')
+    {
+        char order[20];
+        printf("请选择你要查询的订单：");
+        gets(order);
+        memset(pathA, '\0', sizeof(pathA));
+        strncpy(pathA, path, strlen(path) - 9);
+        strcat(order, ".txt");
+        wsprintf(filename, "/order_info/%s", order);
+        strcat(pathA, filename);
+        fp = fopen(pathA, "r");
+        char info[255];
+        if (fp != NULL)
+        {
+            fgets(info, 255, (FILE *)fp);
+            while (!feof(fp))
+            {
+                printf("%s", info);
+                fgets(info, 255, (FILE *)fp);
+            }
+            fclose(fp);
+            printf("你是否需要继续查询？\n继续请输入y，退出请输入任意字符\n");
+            scanf("%c", &cont);
+            getchar();
+        }
+        else
+        {
+            printf("请重新输入\n");
+        }
+    }
+
+    _findclose(handle);
 }
 #endif
