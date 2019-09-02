@@ -3,6 +3,7 @@
 
 #include "judge.h"
 #include "gadgets.h"
+#include "session.h"
 #include <direct.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,7 +16,7 @@ void find_studio_info(char path[]);
 void studio_info(char path[]);
 void add_session_info(char path[]);
 void session_classified(char path[]);
-
+session Read_session_to_struct(FILE *fp,Sessiondetail session);
 void Changeinfo(char path[], char username[])
 {
     FILE *in, *out;
