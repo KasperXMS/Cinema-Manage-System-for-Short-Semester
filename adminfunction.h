@@ -1,8 +1,8 @@
 #ifndef _ADMINFUNCTION_H
 #define _ADMINFUNCTION_H
 
-#include "judge.h"
 #include "gadgets.h"
+#include "judge.h"
 #include "session.h"
 #include <direct.h>
 #include <stdio.h>
@@ -16,43 +16,47 @@ void find_studio_info(char path[]);
 void studio_info(char path[]);
 void add_session_info(char path[]);
 void session_classified(char path[]);
-void ShowSession(Sessiondetail session);
-Sessiondetail Read_session_to_struct(FILE *fp,Sessiondetail session);
+void ShowSession(SessionDetail session);
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session);
+int session_arrange(char path[], char cinema[], int newhall, int newstart, int newtime);
 
-void ShowSession(Sessiondetail session){
-    int i=0;
-    printf("åœºæ¬¡ç¼–å·:%s\n",session.SessioNum);
-    printf("å½±ç‰‡åç§°:%s\n",session.MovName);
-    printf("å½±é™¢åç§°:%s\n",session.CinName);
-    printf("å½±å…å·:%d\n",session.MovieRoom);
-    printf("å½±ç‰‡å¼€å§‹æ—¶é—´:%s\n",session.Startime);
-    printf("å½±ç‰‡å¼€å§‹æ—¶é—´:%s\n",session.Stoptime);
-    printf("æ€»æ—¶é•¿:%d\n",session.time);
-    printf("æ€»åº§ä½:%d\n",session.AllticketNum);
-    printf("ä½™ç¥¨æ•°:%d\n",session.remainTicket);
-    printf("ç¥¨ä»·:%lf\n",session.price);
-    printf("è¯­è¨€ç±»å‹:%s\n",session.language);
-    printf("ç”µå½±ç±»å‹:%s\n",session.MovType);
-    printf("ä¼˜æƒ æ”¿ç­–:%f\n",session.discount);
-    printf("æ€»æ’æ•°:%d\n",session.row);
-    printf("æ€»åˆ—æ•°:%d\n",session.colum);
-    printf("å·²å åº§ä½ä¿¡æ¯:\n");
-    for(i=0;i<session.AllticketNum-session.remainTicket;i++)
-        printf("%dæ’%dåº§\n",session.Curseat[i][0],session.Curseat[i][1]);
+void ShowSession(SessionDetail session)
+{
+    int i = 0;
+    printf("³¡´Î±àºÅ:%s\n", session.SessioNum);
+    printf("Ó°Æ¬Ãû³Æ:%s\n", session.MovName);
+    printf("Ó°ÔºÃû³Æ:%s\n", session.CinName);
+    printf("Ó°ÌüºÅ:%d\n", session.MovieRoom);
+    printf("Ó°Æ¬¿ªÊ¼Ê±¼ä:%s\n", session.Startime);
+    printf("Ó°Æ¬¿ªÊ¼Ê±¼ä:%s\n", session.Stoptime);
+    printf("×ÜÊ±³¤:%d\n", session.time);
+    printf("×Ü×ùÎ»:%d\n", session.AllticketNum);
+    printf("ÓàÆ±Êı:%d\n", session.remainTicket);
+    printf("Æ±¼Û:%lf\n", session.price);
+    printf("ÓïÑÔÀàĞÍ:%s\n", session.language);
+    printf("µçÓ°ÀàĞÍ:%s\n", session.MovType);
+    printf("ÓÅ»İÕş²ß:%f\n", session.discount);
+    printf("×ÜÅÅÊı:%d\n", session.row);
+    printf("×ÜÁĞÊı:%d\n", session.colum);
+    printf("ÒÑÕ¼×ùÎ»ĞÅÏ¢:\n");
+    for (i = 0; i < session.AllticketNum - session.remainTicket; i++)
+        printf("%dÅÅ%d×ù\n", session.Curseat[i][0], session.Curseat[i][1]);
 }
 
-Sessiondetail Read_session_to_struct(FILE *fp,Sessiondetail session){
-    int i=0,seat=0,seatx=0,seaty=0;
-    fscanf(fp,"%s%s%s%d",session.SessioNum,session.MovName,session.CinName,&session.MovieRoom);
-    fscanf(fp,"%s%s%d%d",session.Startime,session.Stoptime,&session.time,&session.AllticketNum);
-    fscanf(fp,"%d%lf%s%s",&session.remainTicket,&session.price,session.language,session.MovType);
-    fscanf(fp,"%f%d%d",&session.discount,&session.row,&session.colum);
-    while(!feof(fp)){
-        fscanf(fp,"%d",&seat);
-        seatx=seat/100;
-        seaty=seat%100;
-        session.Curseat[i][0]=seatx;
-        session.Curseat[i++][1]=seaty;
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session)
+{
+    int i = 0, seat = 0, seatx = 0, seaty = 0;
+    fscanf(fp, "%s%s%s%d", session.SessioNum, session.MovName, session.CinName, &session.MovieRoom);
+    fscanf(fp, "%s%s%d%d", session.Startime, session.Stoptime, &session.time, &session.AllticketNum);
+    fscanf(fp, "%d%lf%s%s", &session.remainTicket, &session.price, session.language, session.MovType);
+    fscanf(fp, "%f%d%d", &session.discount, &session.row, &session.colum);
+    while (!feof(fp))
+    {
+        fscanf(fp, "%d", &seat);
+        seatx = seat / 100;
+        seaty = seat % 100;
+        session.Curseat[i][0] = seatx;
+        session.Curseat[i++][1] = seaty;
     }
     return session;
 }
@@ -60,7 +64,7 @@ Sessiondetail Read_session_to_struct(FILE *fp,Sessiondetail session){
 void Changeinfo(char path[], char username[])
 {
     FILE *in, *out;
-    char buff[255]={'\0'};
+    char buff[255] = {'\0'};
     char password[MAX] = {'\0'};
     char NAME[MAX] = {'\0'}, cinema[MAX] = {'\0'}, email[MAX] = {'\0'};
     double remain = 0.00;
@@ -68,9 +72,9 @@ void Changeinfo(char path[], char username[])
     int choice = 0, flag = 1;
     char newPassword1[MAX], newPassword2[MAX], newEmail[MAX];
 
-    strncpy(filename, path, strlen(path) - 8); //copy, 14æ˜¯ç¨‹åºåä½æ•°åŠ ä¸Š.exeçš„ä½æ•°
+    strncpy(filename, path, strlen(path) - 8); //copy, 14ÊÇ³ÌĞòÃûÎ»Êı¼ÓÉÏ.exeµÄÎ»Êı
     strcat(filename, "accounts\\admin\\");
-    strcat(filename, username); //æ‹¼æ¥
+    strcat(filename, username); //Æ´½Ó
     strcat(filename, ".acc");
     in = fopen(filename, "r");
 
@@ -82,10 +86,10 @@ void Changeinfo(char path[], char username[])
 
     while (flag)
     {
-        printf("è¯·é€‰æ‹©ï¼š\n");
-        printf("1. ä¿®æ”¹å¯†ç \n");
-        printf("2. ä¿®æ”¹é‚®ç®±\n");
-        printf("3. è¿”å›\n");
+        printf("ÇëÑ¡Ôñ£º\n");
+        printf("1. ĞŞ¸ÄÃÜÂë\n");
+        printf("2. ĞŞ¸ÄÓÊÏä\n");
+        printf("3. ·µ»Ø\n");
         scanf("%d", &choice);
 
         switch (choice)
@@ -94,9 +98,9 @@ void Changeinfo(char path[], char username[])
             flag = 1;
             while (flag)
             {
-                printf("è¯·è¾“å…¥æ–°å¯†ç ï¼š\n");
+                printf("ÇëÊäÈëĞÂÃÜÂë£º\n");
                 scanf("%s", newPassword1);
-                printf("è¯·å†æ¬¡ç¡®è®¤æ–°å¯†ç ï¼š\n");
+                printf("ÇëÔÙ´ÎÈ·ÈÏĞÂÃÜÂë£º\n");
                 scanf("%s", newPassword2);
                 if (strcmp(newPassword1, newPassword2) == 0)
                 {
@@ -105,22 +109,22 @@ void Changeinfo(char path[], char username[])
                         if (strcmp(newPassword1, password) != 0)
                         {
                             strcpy(password, newPassword1);
-                            printf("ä¿®æ”¹æˆåŠŸï¼\n");
+                            printf("ĞŞ¸Ä³É¹¦£¡\n");
                             flag = 0;
                         }
                         else
                         {
-                            printf("ä¸èƒ½ä¸åŸå¯†ç ç›¸åŒ\n");
+                            printf("²»ÄÜÓëÔ­ÃÜÂëÏàÍ¬\n");
                         }
                     }
                     else
                     {
-                        printf("éæ³•è¾“å…¥ï¼\n");
+                        printf("·Ç·¨ÊäÈë£¡\n");
                     }
                 }
                 else
                 {
-                    printf("ä¸¤æ¬¡å¯†ç ä¸ä¸€è‡´è¯·é‡æ–°è¾“å…¥\n");
+                    printf("Á½´ÎÃÜÂë²»Ò»ÖÂÇëÖØĞÂÊäÈë\n");
                 }
             }
             flag = 1;
@@ -129,24 +133,24 @@ void Changeinfo(char path[], char username[])
             flag = 1;
             while (flag)
             {
-                printf("è¯·è¾“å…¥æ–°çš„é‚®ç®±ï¼š\n");
+                printf("ÇëÊäÈëĞÂµÄÓÊÏä£º\n");
                 scanf("%s", newEmail);
                 if (judgeEmail(newEmail) == 1)
                 {
                     if (strcmp(email, newEmail) != 0)
                     {
                         strcpy(email, newEmail);
-                        printf("ä¿®æ”¹æˆåŠŸï¼\n");
+                        printf("ĞŞ¸Ä³É¹¦£¡\n");
                         flag = 0;
                     }
                     else
                     {
-                        printf("ä¸èƒ½ä¸åŸé‚®ç®±ç›¸åŒ\n");
+                        printf("²»ÄÜÓëÔ­ÓÊÏäÏàÍ¬\n");
                     }
                 }
                 else
                 {
-                    printf("éæ³•è¾“å…¥ï¼\n");
+                    printf("·Ç·¨ÊäÈë£¡\n");
                 }
             }
             flag = 1;
@@ -155,7 +159,7 @@ void Changeinfo(char path[], char username[])
             flag = 0;
             break;
         default:
-            printf("éæ³•è¾“å…¥ï¼\n");
+            printf("·Ç·¨ÊäÈë£¡\n");
         }
         fclose(in);
         if ((out = fopen(filename, "w+")) != NULL)
@@ -176,18 +180,18 @@ void Changeinfo(char path[], char username[])
 
 void find_session_info(char path[])
 {
-    Sessiondetail session;
+    SessionDetail Session;
     getchar();
-    char session[20]={'\0'};
-    printf("è¯·è¾“å…¥ä½ è¦æŸ¥æ‰¾çš„åœºæ¬¡IDï¼š");
+    char session[20] = {'\0'};
+    printf("ÇëÊäÈëÄãÒª²éÕÒµÄ³¡´ÎID£º");
     gets(session);
     char to_search[101] = {'\0'};
     strncpy(to_search, path, strlen(path) - 8);
     strcpy(to_search, "session_info\\*.txt");
-    long handle;                               //ç”¨äºæŸ¥æ‰¾çš„å¥æŸ„
-    struct _finddata_t fileinfo;               //æ–‡ä»¶ä¿¡æ¯çš„ç»“æ„ä½“
-    handle = _findfirst(to_search, &fileinfo); //ç¬¬ä¸€æ¬¡æŸ¥æ‰¾
-    //printf("%s\n", fileinfo.name);        //æ‰“å°å‡ºæ‰¾åˆ°çš„æ–‡ä»¶çš„æ–‡ä»¶å
+    long handle;                               //ÓÃÓÚ²éÕÒµÄ¾ä±ú
+    struct _finddata_t fileinfo;               //ÎÄ¼şĞÅÏ¢µÄ½á¹¹Ìå
+    handle = _findfirst(to_search, &fileinfo); //µÚÒ»´Î²éÕÒ
+    //printf("%s\n", fileinfo.name);        //´òÓ¡³öÕÒµ½µÄÎÄ¼şµÄÎÄ¼şÃû
     char pathA[255] = {'\0'};
     strncpy(pathA, path, strlen(path) - 9);
     char filename[255] = {'\0'};
@@ -200,12 +204,12 @@ void find_session_info(char path[])
         strcat(pathA, filename);
         FILE *fp = NULL;
         fp = fopen(pathA, "r");
-	session=Read_session_to_struct(fp,session);
+        Session = Read_session_to_struct(fp, Session);
         char str[255];
-        printf("æ­¤åœºæ¬¡çš„å…·ä½“ä¿¡æ¯å¦‚ä¸‹ï¼š\n");
-        ShowSession(session);
+        printf("´Ë³¡´ÎµÄ¾ßÌåĞÅÏ¢ÈçÏÂ£º\n");
+        ShowSession(Session);
     }
-    while (!_findnext(handle, &fileinfo)) //å¾ªç¯æŸ¥æ‰¾å…¶ä»–ç¬¦åˆçš„æ–‡ä»¶ï¼ŒçŸ¥é“æ‰¾ä¸åˆ°å…¶ä»–çš„ä¸ºæ­¢
+    while (!_findnext(handle, &fileinfo)) //Ñ­»·²éÕÒÆäËû·ûºÏµÄÎÄ¼ş£¬ÖªµÀÕÒ²»µ½ÆäËûµÄÎªÖ¹
     {
         //printf("%s\n", fileinfo.name);
         if (strcmp(session, fileinfo.name) == 0)
@@ -218,7 +222,7 @@ void find_session_info(char path[])
             FILE *fp = NULL;
             fp = fopen(pathA, "r");
             char str[255];
-            printf("æ­¤åœºæ¬¡çš„å…·ä½“ä¿¡æ¯å¦‚ä¸‹ï¼š\n");
+            printf("´Ë³¡´ÎµÄ¾ßÌåĞÅÏ¢ÈçÏÂ£º\n");
             fgets(str, 255, (FILE *)fp);
             while (!feof(fp))
             {
@@ -229,24 +233,24 @@ void find_session_info(char path[])
     }
     if (temp == 0)
     {
-        printf("ä½ è¾“å…¥çš„åœºæ¬¡ä¸å­˜åœ¨");
+        printf("ÄãÊäÈëµÄ³¡´Î²»´æÔÚ");
     }
-    _findclose(handle); //åˆ«å¿˜äº†å…³é—­å¥æŸ„
+    _findclose(handle); //±ğÍüÁË¹Ø±Õ¾ä±ú
 }
 
-void find_studio_info(char path[]) //ç®¡ç†å‘˜å½±å…æŸ¥è¯¢
+void find_studio_info(char path[]) //¹ÜÀíÔ±Ó°Ìü²éÑ¯
 {
     getchar();
     char studio[5];
-    printf("è¯·è¾“å…¥ä½ è¦æŸ¥æ‰¾çš„å½±å…å®Œæ•´ç¼–å·ï¼š");
+    printf("ÇëÊäÈëÄãÒª²éÕÒµÄÓ°ÌüÍêÕû±àºÅ£º");
     gets(studio);
     char to_search[101] = {'\0'};
     strncpy(to_search, path, strlen(path) - 8);
     strcat(to_search, "studio_info\\*.txt");
-    long handle;                               //ç”¨äºæŸ¥æ‰¾çš„å¥æŸ„
-    struct _finddata_t fileinfo;               //æ–‡ä»¶ä¿¡æ¯çš„ç»“æ„ä½“
-    handle = _findfirst(to_search, &fileinfo); //ç¬¬ä¸€æ¬¡æŸ¥æ‰¾
-    //printf("%s\n", fileinfo.name);        //æ‰“å°å‡ºæ‰¾åˆ°çš„æ–‡ä»¶çš„æ–‡ä»¶å
+    long handle;                               //ÓÃÓÚ²éÕÒµÄ¾ä±ú
+    struct _finddata_t fileinfo;               //ÎÄ¼şĞÅÏ¢µÄ½á¹¹Ìå
+    handle = _findfirst(to_search, &fileinfo); //µÚÒ»´Î²éÕÒ
+    //printf("%s\n", fileinfo.name);        //´òÓ¡³öÕÒµ½µÄÎÄ¼şµÄÎÄ¼şÃû
     char pathA[255] = {'\0'};
     strncpy(pathA, path, strlen(path) - 9);
     char filename[255] = {'\0'};
@@ -260,7 +264,7 @@ void find_studio_info(char path[]) //ç®¡ç†å‘˜å½±å…æŸ¥è¯¢
         FILE *fp = NULL;
         fp = fopen(pathA, "r");
         char str[255];
-        printf("æ­¤å½±å…çš„å…·ä½“ä¿¡æ¯å¦‚ä¸‹ï¼š\n");
+        printf("´ËÓ°ÌüµÄ¾ßÌåĞÅÏ¢ÈçÏÂ£º\n");
         fgets(str, 255, (FILE *)fp);
         while (!feof(fp))
         {
@@ -268,7 +272,7 @@ void find_studio_info(char path[]) //ç®¡ç†å‘˜å½±å…æŸ¥è¯¢
             fgets(str, 255, (FILE *)fp);
         }
     }
-    while (!_findnext(handle, &fileinfo)) //å¾ªç¯æŸ¥æ‰¾å…¶ä»–ç¬¦åˆçš„æ–‡ä»¶ï¼ŒçŸ¥é“æ‰¾ä¸åˆ°å…¶ä»–çš„ä¸ºæ­¢
+    while (!_findnext(handle, &fileinfo)) //Ñ­»·²éÕÒÆäËû·ûºÏµÄÎÄ¼ş£¬ÖªµÀÕÒ²»µ½ÆäËûµÄÎªÖ¹
     {
         //printf("%s\n", fileinfo.name);
         if (strcmp(studio, fileinfo.name) == 0)
@@ -281,7 +285,7 @@ void find_studio_info(char path[]) //ç®¡ç†å‘˜å½±å…æŸ¥è¯¢
             FILE *fp = NULL;
             fp = fopen(pathA, "r");
             char str[255];
-            printf("æ­¤å½±å…çš„å…·ä½“ä¿¡æ¯å¦‚ä¸‹ï¼š\n");
+            printf("´ËÓ°ÌüµÄ¾ßÌåĞÅÏ¢ÈçÏÂ£º\n");
             fgets(str, 255, (FILE *)fp);
             while (!feof(fp))
             {
@@ -292,26 +296,26 @@ void find_studio_info(char path[]) //ç®¡ç†å‘˜å½±å…æŸ¥è¯¢
     }
     if (temp == 0)
     {
-        printf("ä½ è¾“å…¥çš„åœºæ¬¡ä¸å­˜åœ¨");
+        printf("ÄãÊäÈëµÄ³¡´Î²»´æÔÚ");
     }
-    _findclose(handle); //åˆ«å¿˜äº†å…³é—­å¥æŸ„
+    _findclose(handle); //±ğÍüÁË¹Ø±Õ¾ä±ú
 }
 
-void studio_info(char path[]) //æ·»åŠ å½±å…
+void studio_info(char path[]) //Ìí¼ÓÓ°Ìü
 {
-    //å°†æ‰€å±å½±é™¢ã€ç¼–å·ã€åº§ä½æ•°å’Œç±»å‹å­˜å…¥è¡¨ä¸­
+    //½«ËùÊôÓ°Ôº¡¢±àºÅ¡¢×ùÎ»ÊıºÍÀàĞÍ´æÈë±íÖĞ
     char cma[20];
-    int num=0;
-    int seats=0;
+    int num = 0;
+    int seats = 0;
     char kind[10];
     getchar();
-    printf("è¯·è¾“å…¥ä½ æ‰€åœ¨çš„å½±é™¢ï¼š");
+    printf("ÇëÊäÈëÄãËùÔÚµÄÓ°Ôº£º");
     gets(cma);
-    printf("è¯·è¾“å…¥ä½ è¦æ·»åŠ çš„å½±å…å·ï¼š");
+    printf("ÇëÊäÈëÄãÒªÌí¼ÓµÄÓ°ÌüºÅ£º");
     scanf("%d", &num);
-    printf("è¯·è¾“å…¥æ­¤å½±å…æ€»åº§ä½æ•°ï¼š");
+    printf("ÇëÊäÈë´ËÓ°Ìü×Ü×ùÎ»Êı£º");
     scanf("%d", &seats);
-    printf("è¯·è¾“å…¥æ­¤å½±å…çš„ç±»å‹ï¼›");
+    printf("ÇëÊäÈë´ËÓ°ÌüµÄÀàĞÍ£»");
     scanf("%s", kind);
     char pathA[255] = {'\0'};
     strncpy(pathA, path, strlen(path) - 9);
@@ -320,7 +324,7 @@ void studio_info(char path[]) //æ·»åŠ å½±å…
     strcat(pathA, filename);
     FILE *fp = NULL;
     fp = fopen(pathA, "a+");
-    //ä¾æ¬¡å½•å…¥
+    //ÒÀ´ÎÂ¼Èë
     fprintf(fp, "%s", cma);
     fputs("\n", fp);
     fprintf(fp, "%d", num);
@@ -332,12 +336,12 @@ void studio_info(char path[]) //æ·»åŠ å½±å…
     fclose(fp);
 }
 
-void add_session_info(char path[]) //æ·»åŠ åœºæ¬¡
+void add_session_info(char path[]) //Ìí¼Ó³¡´Î
 {
-    char session[20]={'\0'};
-    char mov[20]={'\0'};
-    char cma[20]={'\0'};
-    int studio=0;
+    char session[20] = {'\0'};
+    char mov[20] = {'\0'};
+    char cma[20] = {'\0'};
+    int studio = 0;
     char star[6] = {'\0'};
     char end[6] = {'\0'};
     int time = 90;
@@ -345,25 +349,34 @@ void add_session_info(char path[]) //æ·»åŠ åœºæ¬¡
     char kind[5];
     double rate = 1;
     getchar();
-    printf("è¯·è¾“å…¥ä½ è¦æ·»åŠ çš„åœºæ¬¡IDï¼š");
+    printf("ÇëÊäÈëÄãÒªÌí¼ÓµÄ³¡´ÎID£º");
     gets(session);
-    printf("è¯·è¾“å…¥ä½ è¦æ·»åŠ çš„å½±ç‰‡åç§°ï¼š");
+    printf("ÇëÊäÈëÄãÒªÌí¼ÓµÄÓ°Æ¬Ãû³Æ£º");
     gets(mov);
-    printf("è¯·è¾“å…¥ä½ æ‰€åœ¨çš„å½±é™¢ï¼š");
+    printf("ÇëÊäÈëÄãËùÔÚµÄÓ°Ôº£º");
     gets(cma);
-    printf("è¯·è¾“å…¥ä½ è¦æ·»åŠ åˆ°çš„å½±å…å·ï¼š");
+    printf("ÇëÊäÈëÄãÒªÌí¼Óµ½µÄÓ°ÌüºÅ£º");
     scanf("%d", &studio);
-    printf("è¯·è¾“å…¥å½±ç‰‡çš„å¼€å§‹æ—¶é—´ï¼š");
-    scanf("%s", star);
-    printf("è¯·è¾“å…¥å½±ç‰‡çš„ç»“æŸæ—¶é—´ï¼š");
-    scanf("%s", end);
-    printf("è¯·è¾“å…¥å½±ç‰‡æ—¶é•¿ï¼š");
-    scanf("%d", &time);
-    printf("è¯·è¾“å…¥æœ¬åœºæ¬¡ç¥¨ä»·ï¼š");
+    int judge = 0;
+    while (judge == 0)
+    {
+        printf("ÇëÊäÈëÓ°Æ¬µÄ¿ªÊ¼Ê±¼ä£º");
+        scanf("%s", star);
+        printf("ÇëÊäÈëÓ°Æ¬µÄ½áÊøÊ±¼ä£º");
+        scanf("%s", end);
+        printf("ÇëÊäÈëÓ°Æ¬Ê±³¤£º");
+        scanf("%d", &time);
+        judge = session_arrange(path, cma, studio, hhmm2min(star), time);
+        if (judge == 0)
+        {
+            printf("ÄãÊäÈëµÄÊ±¼äÓëÆäËû³¡´ÎÓĞ³åÍ»£¬ÇëÖØĞÂÊäÈë");
+        }
+    }
+    printf("ÇëÊäÈë±¾³¡´ÎÆ±¼Û£º");
     scanf("%lf", &pri);
-    //å½±ç‰‡ç±»å‹
-    strcpy(kind, "å¾…å®š");
-    //æ‰“æŠ˜ç‡
+    //Ó°Æ¬ÀàĞÍ
+    strcpy(kind, "´ı¶¨");
+    //´òÕÛÂÊ
     rate = 1;
     char pathA[255] = {'\0'};
     strncpy(pathA, path, strlen(path) - 9);
@@ -373,7 +386,7 @@ void add_session_info(char path[]) //æ·»åŠ åœºæ¬¡
     FILE *fp = NULL;
     printf("%s\n", pathA);
     fp = fopen(pathA, "a+");
-    //å°†ä¼ å…¥ä¿¡æ¯å’Œè‡ªå®šä¹‰ä¿¡æ¯ä¾æ¬¡å½•å…¥è¡¨ä¸­
+    //½«´«ÈëĞÅÏ¢ºÍ×Ô¶¨ÒåĞÅÏ¢ÒÀ´ÎÂ¼Èë±íÖĞ
     fputs(session, fp);
     fputs("\n", fp);
     fputs(mov, fp);
@@ -399,17 +412,17 @@ void add_session_info(char path[]) //æ·»åŠ åœºæ¬¡
 
 void session_classified(char path[])
 {
-	getchar();
-    char cma[20]={'\0'};
-    printf("è¯·è¾“å…¥ä½ è¦æ•´ç†çš„å½±é™¢ï¼š");
+    getchar();
+    char cma[20] = {'\0'};
+    printf("ÇëÊäÈëÄãÒªÕûÀíµÄÓ°Ôº£º");
     gets(cma);
     char to_search[101] = {'\0'};
     strncpy(to_search, path, strlen(path) - 8);
     strcat(to_search, "session_info\\*.txt");
-    long handle;                               //ç”¨äºæŸ¥æ‰¾çš„å¥æŸ„
-    struct _finddata_t fileinfo;               //æ–‡ä»¶ä¿¡æ¯çš„ç»“æ„ä½“
-    handle = _findfirst(to_search, &fileinfo); //ç¬¬ä¸€æ¬¡æŸ¥æ‰¾
-    //printf("%s\n", fileinfo.name);        //æ‰“å°å‡ºæ‰¾åˆ°çš„æ–‡ä»¶çš„æ–‡ä»¶å
+    long handle;                               //ÓÃÓÚ²éÕÒµÄ¾ä±ú
+    struct _finddata_t fileinfo;               //ÎÄ¼şĞÅÏ¢µÄ½á¹¹Ìå
+    handle = _findfirst(to_search, &fileinfo); //µÚÒ»´Î²éÕÒ
+    //printf("%s\n", fileinfo.name);        //´òÓ¡³öÕÒµ½µÄÎÄ¼şµÄÎÄ¼şÃû
     char pathA[255] = {'\0'};
     strncpy(pathA, path, strlen(path) - 9);
     char filename[255] = {'\0'};
@@ -422,12 +435,12 @@ void session_classified(char path[])
     char *p;
     int i;
     int num = 0;
-    //æŸ¥æ‰¾æ–‡ä»¶ä¸­æ‰€å±çš„å½±é™¢
+    //²éÕÒÎÄ¼şÖĞËùÊôµÄÓ°Ôº
     for (i = 0; i < 3; i++)
     {
         fgets(str[i], 255, (FILE *)fp);
     }
-    //å¯¹æ¯”æ–‡ä»¶æ‰€å±å½±é™¢ä¸å¾…æŸ¥æ‰¾å½±é™¢ï¼Œç¬¦åˆåˆ™å½•å…¥
+    //¶Ô±ÈÎÄ¼şËùÊôÓ°ÔºÓë´ı²éÕÒÓ°Ôº£¬·ûºÏÔòÂ¼Èë
     p = strtok(str[2], "\n");
     if (strcmp(str[2], cma) == 0)
     {
@@ -448,7 +461,7 @@ void session_classified(char path[])
         fprintf(files, "%s", str[0]);
         fputs("\n", fp);
     }
-    while (!_findnext(handle, &fileinfo)) //ç»§ç»­éå†æ–‡ä»¶å¤¹çš„æ–‡ä»¶
+    while (!_findnext(handle, &fileinfo)) //¼ÌĞø±éÀúÎÄ¼ş¼ĞµÄÎÄ¼ş
     {
         //printf("%s\n", fileinfo.name);
         memset(str, 0, sizeof(str));
@@ -457,20 +470,20 @@ void session_classified(char path[])
         wsprintf(filename, "\\session_info\\%s", fileinfo.name);
         strcat(pathA, filename);
         FILE *fp = NULL;
-        if((fp = fopen(pathA, "r"))!=NULL)
+        if ((fp = fopen(pathA, "r")) != NULL)
         {
-        	//printf("Successfully found!\n");
-		}
-		else
-		{
-			printf("Open failed!\n");
-		}
+            //printf("Successfully found!\n");
+        }
+        else
+        {
+            printf("Open failed!\n");
+        }
         for (i = 0; i < 3; i++)
         {
             fgets(str[i], 255, (FILE *)fp);
         }
         p = strtok(str[2], "\n");
-        //ç»§ç»­å¯¹æ¯”æ‰€å±å½±é™¢ï¼Œç¬¦åˆåˆ™å½•å…¥
+        //¼ÌĞø¶Ô±ÈËùÊôÓ°Ôº£¬·ûºÏÔòÂ¼Èë
         if (strcmp(str[2], cma) == 0)
         {
             num++;
@@ -493,5 +506,118 @@ void session_classified(char path[])
     }
     _findclose(handle);
 }
-
-#endif 
+int session_arrange(char path[], char cinema[], int newhall, int newstart, int newtime)
+{
+    typedef struct
+    {
+        int hall;
+        int start;
+        int end;
+        int time;
+        char starts[20];
+        char ends[20];
+    } Sessiontime; //Êı¾İ¶Á³öºó´æÔÚ½á¹¹Ìå
+    int value = 0;
+    char filename[MAX] = {'\0'}, buffering[MAX] = {'\0'};
+    FILE *fp1, *fp2;
+    int i = 0, n = 0, newend = newstart + newtime, IOTime = 10, sweeptime = 10;
+    strncpy(filename, path, strlen(path) - 19);
+    strcat(filename, "cma_info\\");
+    strcat(filename, cinema);
+    strcat(filename, ".txt");
+    printf("%s\n", filename);
+    if ((fp1 = fopen(filename, "r")) != NULL)
+    {
+        for (n = 0; !feof(fp1); n++)
+        {
+            fscanf(fp1, "%s", buffering); //»ñÈ¡Ó°ÔºÎÄ¼şÖĞ³¡´ÎÊıÁ¿(Êµ¼Ê²Ù×÷ÖĞÕâ¸öÊıÊÇ+1µÄ£¬µ«²»Ó°Ïì³ÌĞòÕı³£¹¦ÄÜ)
+        }
+        n--;
+        fclose(fp1);
+        char **session_ID = (char **)malloc(n * sizeof(char *));
+        for (i = 0; i < n; i++)
+        {
+            session_ID[i] = (char *)malloc(20 * sizeof(char)); //¶şÎ¬³¡´ÎÃûÊı×é
+        }
+        fp1 = fopen(filename, "r");
+        Sessiontime *sessions = (Sessiontime *)malloc(n * sizeof(Sessiontime)); //¶¯Ì¬½á¹¹ÌåÊı×é
+        for (i = 0; i < n; i++)
+        {
+            fp2 = NULL;
+            fscanf(fp1, "%s", session_ID[i]);
+            memset(filename, 0, MAX * sizeof(char));
+            strncpy(filename, path, strlen(path) - 19);
+            strcat(filename, "session_info\\");
+            strcat(filename, session_ID[i]);
+            strcat(filename, ".txt");
+            if ((fp2 = fopen(filename, "r")) != NULL)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    fscanf(fp2, "%s", buffering);
+                }
+                fscanf(fp2, "%d", &sessions[i].hall);
+                fscanf(fp2, "%s", sessions[i].starts);
+                fscanf(fp2, "%s", sessions[i].ends);
+                fscanf(fp2, "%d", &sessions[i].time);
+                sessions[i].start = hhmm2min(sessions[i].starts);
+                sessions[i].end = hhmm2min(sessions[i].ends); //ÒÀÁĞ±í´ò¿ª³¡´ÎÎÄ¼ş¶ÁÈ¡ĞÅÏ¢
+            }
+            else
+            {
+                fprintf(stderr, "File open error_2!\n");
+            }
+            fclose(fp2);
+            if (sessions[i].hall == newhall)
+            {
+                if (newend < sessions[i].start)
+                {
+                    if ((sessions[i].start - newend) < (2 * IOTime + sweeptime))
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        value = 1;
+                    }
+                }
+                else
+                {
+                    if (newstart > sessions[i].end)
+                    {
+                        if ((newstart - sessions[i].end) > (2 * IOTime + sweeptime))
+                        {
+                            value = 1;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            else
+            {
+                value = 1;
+                if (abs(newend - sessions[i].end) < (IOTime + sweeptime))
+                    return 0;
+                if ((sessions[i].start - newend) < IOTime && (sessions[i].start - newend) > 0)
+                    return 0;
+                if (abs(newstart - sessions[i].start) < IOTime)
+                    return 0;
+                if ((newstart - sessions[i].end) < IOTime && (newstart - sessions[i].end) > 0)
+                    return 0;
+            }
+        } //ÕâĞ©ÉÔÎ¢ÈÆÄÔµÄÂß¼­£¬»­¸öÍ¼¾ÍÃ÷°×ÁË
+    }
+    else
+    {
+        fprintf(stderr, "File open error_1!\n");
+    }
+    return value;
+}
+#endif
