@@ -16,7 +16,23 @@ void find_studio_info(char path[]);
 void studio_info(char path[]);
 void add_session_info(char path[]);
 void session_classified(char path[]);
+void ShowSession(Sessiondetail session);
 session Read_session_to_struct(FILE *fp,Sessiondetail session);
+session Read_session_to_struct(FILE *fp,Sessiondetail session){
+    int i=0,seat=0,seatx=0,seaty=0;
+    fscanf(fp,"%s%s%s%d",session.SessioNum,session.MovName,session.CinName,&session.MovieRoom);
+    fscanf(fp,"%s%s%d%d",session.Startime,session.Stoptime,&session.time,&session.AllticketNum);
+    fscanf(fp,"%d%lf%s%s",&session.remainTicket,&session.price,session.language,session.MovType);
+    fscanf(fp,"%f%d%d",&session.discount,&session.row,&session.colum);
+    while(!feof(fp)){
+        fscanf(fp,"%d",&seat);
+        seatx=seat/100;
+        seaty=seat%100;
+        session.Curseat[i][0]=seatx;
+        session.Curseat[i++][1]=seaty;
+    }
+    return session;
+}
 void Changeinfo(char path[], char username[])
 {
     FILE *in, *out;
@@ -136,6 +152,7 @@ void Changeinfo(char path[], char username[])
 
 void find_session_info(char path[])
 {
+    Sessiondetail session;
     getchar();
     char session[20]={'\0'};
     printf("请输入你要查找的场次ID：");
@@ -159,14 +176,10 @@ void find_session_info(char path[])
         strcat(pathA, filename);
         FILE *fp = NULL;
         fp = fopen(pathA, "r");
+	session=Read_session_to_struct(fp,session);
         char str[255];
         printf("此场次的具体信息如下：\n");
-        fgets(str, 255, (FILE *)fp);
-        while (!feof(fp))
-        {
-            printf("%s", str);
-            fgets(str, 255, (FILE *)fp);
-        }
+        ShowSession(session);
     }
     while (!_findnext(handle, &fileinfo)) //循环查找其他符合的文件，知道找不到其他的为止
     {
