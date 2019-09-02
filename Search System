@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <time.h>
 #include <ctype.h>
+#include "sortsession.h"
 #define MAXSIZE 101
 #define MAX_LENGTH_OF_LINE 1024
 typedef struct Order{   //订单结构体
@@ -53,7 +54,6 @@ typedef struct movie{//场次信息结构体
     int seat[MAXSIZE][MAXSIZE];//座位信息
 }SessionDetail;
 int time_to_min(char time[]);
-void Sort();
 void MovSearch(char pathD[]);
 void MovAndCinSearch(char pathE[]);
 void HotSession(char path[]);
@@ -101,16 +101,13 @@ int SearchOrder(char id[],char path[]){         //查询订单
         return 0;
     return 1;
 }
-void Sort()
-{
-}
 void MovSearch(char pathD[])
 {
 	SessionDetail FindFile[200];
 	int i=0,j=0,k=0,i1=0,l=0,m=0;
 	char movie[MAXSIZE]="\0";
 	char path[255]="\0";
-	char cc[255]="\0",DATE[255]="\0";
+	char cc[255]="\0",DATE[255]="\0",DATEE[255]="\0",Ling[255]="\0";
 	FILE *fptr=NULL,*fptr1=NULL;
 	int Date=0,Date1=0;
 	char optionA='\0',optionB='\0';
@@ -118,6 +115,13 @@ void MovSearch(char pathD[])
 	time(&I);
 	struct tm* pt;
 	pt = localtime(&I);
+	Date = pt->tm_mon * 100 + pt->tm_mday;
+	itoa(Date,DATEE,4);
+	if (pt->tm_mon < 10)
+	{
+		strcpy(Ling,"0");
+		strcat(Ling,DATEE);
+	}
 	printf("温馨提示：目前输入影片后，默认返还当前日期所有影院所有场次。");
 	printf("请输入您想搜索的影片：");
 	scanf("%s",movie);
@@ -208,11 +212,11 @@ void MovSearch(char pathD[])
 					printf("请输入您的选项：");
 					scanf("%c",&optionB);
 					if (optionB == '1')
-						Sort(); 
+						TimeSort(path,"\0",DATE,movie,1); 
 						else if (optionB == '2')
-							Sort();
+							PriceSort(path,"\0",Ling,movie,1);
 							else if (optionB == '3')
-								Sort();
+								RemainSort(path,Ling,movie,1);
 								else
 								{
 									printf("非法输入！将退出程序！\n");
@@ -261,11 +265,11 @@ void MovSearch(char pathD[])
 								printf("请输入您的选项：");
 								scanf("%c",&optionB);
 								if (optionB == '1')
-									Sort(); 
+									TimeSort(path,"\0",Ling,movie,1); 
 									else if (optionB == '2')
-										Sort();
+										PriceSort(path,"\0",Ling,movie,1);
 										else if (optionB == '3')
-											Sort();
+											RemainSort(path,"\0",Ling,movie,1);
 											else
 											{
 												printf("非法输入！将退出程序！\n");
@@ -315,11 +319,11 @@ void MovSearch(char pathD[])
 									printf("请输入您的选项：");
 									scanf("%c",&optionB);
 									if (optionB == '1')
-										Sort(); 
+										TimeSort(path,"\0",Ling,movie,1); 
 										else if (optionB == '2')
-											Sort();
+											PriceSort(path,"\0",Ling,movie,1);
 											else if (optionB == '3')
-												Sort();
+												RemainSort(path,"\0",Ling,movie,1);
 												else
 												{
 													printf("非法输入！将退出程序！\n");
@@ -450,11 +454,11 @@ void MovAndCinSearch(char pathE[])
 					printf("请输入您的选项：");
 					scanf("%c",&optionB);
 					if (optionB == '1')
-						Sort(path,Ling); 
+						TimeSort(path,cinema,DATE,movie,2); 
 						else if (optionB == '2')
-							Sort(path,Ling);
+							PriceSort(path,cinema,Ling,movie,2);
 							else if (optionB == '3')
-								Sort(path,Ling);
+								RemainSort(path,Ling);
 								else
 								{
 									printf("非法输入！将退出程序！\n");
@@ -503,11 +507,11 @@ void MovAndCinSearch(char pathE[])
 								printf("请输入您的选项：");
 								scanf("%c",&optionB);
 								if (optionB == '1')
-									Sort(path,Ling); 
+									TimeSort(path,cinema,Ling,movie,2); 
 									else if (optionB == '2')
-										Sort(path,Ling);
+										PriceSort(path,cinema,Ling,movie,2);
 										else if (optionB == '3')
-											Sort(path,Ling);
+											RemainSort(path,cinema,Ling,movie,2);
 											else
 											{
 												printf("非法输入！将退出程序！\n");
@@ -557,11 +561,11 @@ void MovAndCinSearch(char pathE[])
 									printf("请输入您的选项：");
 									scanf("%c",&optionB);
 									if (optionB == '1')
-										Sort(path,Ling); 
+										TimeSort(path,cinema,Ling,movie,2); 
 										else if (optionB == '2')
-											Sort(path,Ling);
+											PriceSort(path,cinema,Ling,movie,2);
 											else if (optionB == '3')
-												Sort(path,Ling);
+												RemainSort(path,cinema,Ling,movie,2);
 												else
 												{
 													printf("非法输入！将退出程序！\n");
