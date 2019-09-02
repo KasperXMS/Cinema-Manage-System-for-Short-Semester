@@ -12,31 +12,29 @@
 #include <ctype.h>
 #define MAXSIZE 101
 #define MAX_LENGTH_OF_LINE 1024
-typedef struct Basic{
-	char IdOfUser[11];
-	char Movie[MAXSIZE];
-	char Cinema[MAXSIZE]; 
-}Basic;
-typedef struct Order{  			//information of order
-    char ID[MAXSIZE];           //ID of the user
-    char MovName[MAXSIZE];      //name of the movie
-    char CinName[MAXSIZE];      //name of the cinema
-    char Sessions[MAXSIZE];		//session of the movie
-    int MovieRoom; 				//number of the hall in the cinema
-	int SeatNum;                //numbers of the seats that the user want to order
-	int seat[3][2];             //positions of seats that the user want to order
-    int del;                    //whether to delete the order
-    int legal;					//judge whether the order is legal
-	struct {
-    	int year;
-    	int month;
-    	int day;
-    	int hour;
-    	int min;				//time when the order begins 
-	}date;
-	int cost;					//total cost of these seats
+typedef struct Order{   //订单结构体
+    char ID[MAXSIZE];       //用户ID
+    char MovName[MAXSIZE];  //影片名
+    char Startime[6]; //影片开始时间
+    char Stoptime[6]; //影片结束时间
+    char CinName[MAXSIZE];  //影院名
+    char Sessions[MAXSIZE]; //场次
+    int MovieRoom;          //影厅
+    int SeatNum;            //座位数
+    int seat[3][2];         //座位信息
+    int del;                //是否删除订单
+    int legal;              //订单是否合法
+    struct{                 //下单时间
+        int year;
+        int month;
+        int day;
+        int hour;
+        int min;
+    }date;
+    int  cost;               //总花费金额
+    int MoneyAccount;       //账户余额
 }Order;
-typedef struct movie{			//场次信息结构体
+typedef struct movie{//场次信息结构体
     char SessioNum[13];     //场次号
     char MovName[MAXSIZE];  //影片名
     char CinName[MAXSIZE];  //影院名
@@ -49,59 +47,38 @@ typedef struct movie{			//场次信息结构体
     double price;           //票价
     char language[20];      //语言类型
     char MovType[6];        //影片类型
+    float discount;         //优惠政策
     int row;                //总排数
     int colum;              //总列数
     int seat[MAXSIZE][MAXSIZE];//座位信息
 }SessionDetail;
-void MovSearch(char path[]);
-void CinSearch(char path[]);
-void MovAndCinSearch(char path[]);
-void LangSearch(char path[]);
-void TypeSearch(char path[]);
-void HotSession(char path[]);
-void SEARCH(char path[]);
 int time_to_min(char time[]);
+void Sort();
+void MovSearch(char pathD[]);
+void MovAndCinSearch(char pathE[]);
+void HotSession(char path[]);
 void SetPositionByLine(FILE *fp,int line);
-int JudgeSes(char session,char path[]);
-Order CreateOrder(char session[]);
-char *MovieSearch(Basic basics,char path[]);	//search sessions concerning this movie
-char *CinemaSearch(Basic basics);	//search sessions concering this cinema
+int JudgeSes(char sessions[],char path[]);
+Order CreateOrder(char path[],char sessioN[]);
+int SearchOrder(char id[]);
 SessionDetail ReadSession(char sessionum[],char path[]);
 void CurrentSeat(SessionDetail session);
-bool Seat_Is_Legal(Order order,SessionDetail session);
+Order SelectSeat(Order order,SessionDetail session);
+bool Order_Is_Legal(Order order,SessionDetail session);
 bool Time_Is_Conflict(char id[],SessionDetail session);
 bool Money_Is_Enough(Order order);
-bool Moive_Is_Repeat(char id[],SessionDetail session);
-Order SelectSeat(Order order,SessionDetail session);
+bool Movie_Is_Repeat(char id[],SessionDetail session,char path[]);
 Order CompleteOrder(Order order,SessionDetail session);
-char *GetPath(Order order);			//get the path of the file of the session
+void ReadOrder(Order order);
 void DealOrder(Order order,char path8[]); 		//deal with the order and change information in the files of session
-void Pay(Order order);
-void Recover(Order order);
+Order Pay(Order order);
+void Recover(Order order,char path[]);
 int OrderSystem(char path[]);
+void SEARCH(char path[]);
 
-Basic basics;
 Order order;
 SessionDetail Detail;
-void MovSearch(char path[])
-{
-}
-void CinSearch(char path[])
-{
-}
-void MovAndCinSearch(char path[])
-{
-} 
-void LangSearch(char path[])
-{
-} 
-void TypeSearch(char path[])
-{
-} 
-void HotSession(char path[])
-{
-}
-int time_to_min(char time[]){   //将字符串时间格式转换为分钟
+int time_to_min(char time[]){
     char hour[3]={'\0'};
     char min[3]={'\0'};
     int h=0;
@@ -112,21 +89,516 @@ int time_to_min(char time[]){   //将字符串时间格式转换为分钟
     m=atoi(min);
     return h*60+m;
 }
+int SearchOrder(char id[],char path[]){         //查询订单
+    char temp[MAXSIZE]={'\0'};
+    strcpy(temp,path);
+    strcat(temp,"\\order_info\\");
+    strcat(temp,id);
+    strcat(temp,".txt");
+
+    FILE *fp;
+    if((fp = fopen(temp,"r"))==NULL)
+        return 0;
+    return 1;
+}
+void Sort()
+{
+}
+void MovSearch(char pathD[])
+{
+	SessionDetail FindFile[200];
+	int i=0,j=0,k=0,i1=0,l=0,m=0;
+	char movie[MAXSIZE]="\0";
+	char path[255]="\0";
+	char cc[255]="\0",DATE[255]="\0";
+	FILE *fptr=NULL,*fptr1=NULL;
+	int Date=0,Date1=0;
+	char optionA='\0',optionB='\0';
+	time_t I;
+	time(&I);
+	struct tm* pt;
+	pt = localtime(&I);
+	printf("温馨提示：目前输入影片后，默认返还当前日期所有影院所有场次。");
+	printf("请输入您想搜索的影片：");
+	scanf("%s",movie);
+	
+	strcpy(path,pathD);
+	strcat(path,"\\mov_info\\");
+	strcat(path,movie);
+	strcat(path,".txt");
+						//打开对应的写着影片名的文件，读取所有该影片的场次编号
+	if ((fptr = fopen(path,"r")) == NULL)
+	{
+		printf("打开文件失败！将退出程序！\n");
+		exit(1);
+	}
+	else
+	{
+		fptr = fopen(path,"r");//打开影片名文件 
+		if(fgets(cc,MAXSIZE,fptr) == NULL)
+		printf("该影片暂无场次！\n");
+		else
+		{ 
+			for (i = 0;fgets(cc,MAXSIZE,fptr) != NULL;i++)//读取每行的场次编号 
+			{
+				fscanf(fptr,"%s",FindFile[i].SessioNum);
+				fscanf(fptr,"%s",FindFile[i].MovName);
+				fscanf(fptr,"%s",FindFile[i].CinName);
+				fscanf(fptr,"%d",&FindFile[i].MovieRoom);
+				fscanf(fptr,"%s",FindFile[i].Startime);
+				fscanf(fptr,"%s",FindFile[i].Stoptime);
+				fscanf(fptr,"%d",&FindFile[i].time);
+				fscanf(fptr,"%d",&FindFile[i].AllticketNum);
+				fscanf(fptr,"%d",&FindFile[i].remainTicket);
+				fscanf(fptr,"%lf",&FindFile[i].price);
+				fscanf(fptr,"%s",FindFile[i].language);
+				fscanf(fptr,"%s",FindFile[i].MovType);
+				fscanf(fptr,"%d",&FindFile[i].row);
+				fscanf(fptr,"%d",&FindFile[i].colum);
+			}
+			i1 = i;
+			for(i = 0;i < i1;i++)
+			{
+				for (k = 4;k < 8;i++)
+					DATE[k] = FindFile[i].SessioNum[k];//日期信息从场次编号中获取
+				Date = atoi(DATE);
+				Date1 = pt->tm_mon * 100 + pt->tm_mday; 
+				if (Date == Date1) 
+				{ 
+					printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+					printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+				}
+			}
+			printf("请根据您的需要从以下选项中选择一项：\n"); 
+			printf("1.根据日期过滤结果\n"); 
+			printf("2.根据放映场次类型过滤结果（仅当日）\n");
+			printf("3.根据放映影厅类型过滤结果（仅当日）\n");
+			printf("请输入您的选项：");
+			int have=0;
+			have = 0;
+			scanf("%c",&optionA);
+			printf("          影院          影片          日期          影厅          开始时间          结束时间          场次编号          票价          余票数\n");
+			if (optionA == '1')
+			{
+				SessionDetail TEMP0[200];
+				printf("请输入您想查询的日期：（温馨提示：直接输入月份+日期 例：9月2日则输入 0902）");
+				scanf("%d",Date1); 
+				for(i = 0;i < i1;i++)
+				{
+					for (k = 4;k < 8;k++)
+						DATE[k] = FindFile[i].SessioNum[k];//日期信息从场次编号中获取
+					Date = atoi(DATE); 
+					if (Date == Date1) 
+					{ 
+						printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+						printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+						have = 1;
+						TEMP0[j] = FindFile[i];
+						j++;
+					}
+				}
+				if (have == 0)
+					printf("该日暂无场次！将退出查询！\n");
+				else if (have == 1)
+				{
+					printf("若您想对场次排序，请从以下选项中选择一项：");
+					printf("1.根据放映开始时间排序：\n");
+					printf("2.根据场次票价排序：\n"); 
+					printf("3.根据场次余票数排序：\n"); 
+					printf("请输入您的选项：");
+					scanf("%c",&optionB);
+					if (optionB == '1')
+						Sort(); 
+						else if (optionB == '2')
+							Sort();
+							else if (optionB == '3')
+								Sort();
+								else
+								{
+									printf("非法输入！将退出程序！\n");
+									exit(1); 
+								} 
+				}
+			}
+				else if (optionA == '2')
+				{
+					char SESTYPE[4]="\0";
+					int have1=0;
+					have1 = 0;
+					printf("请输入您想观看的场次类型：（温馨提示：中文输入CHN，英文输入ENG）");
+					scanf("%s",SESTYPE); 
+					if ((strcmp(SESTYPE,"CHN")!= 0) && (strcmp(SESTYPE,"ENG") != 0))
+					{
+						printf("非法输入!将退出程序！\n");
+						exit(1);
+					}
+					else
+					{
+						SessionDetail TEMP1[200];
+						for (i = 0;i < i1;i++)
+						{
+							for (k = 4;k < 8;k++)
+								DATE[k] = FindFile[i].SessioNum[k];
+							Date = atoi(DATE);
+							Date1 = pt->tm_mon * 100 + pt->tm_mday;
+							if ((strcmp(FindFile[i].MovType,SESTYPE) == 0)&& (Date == Date1))
+							{
+								printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+								printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+								have1 = 1;
+								TEMP1[l] = FindFile[i];
+								l++;
+							}
+						}
+						if (have1 == 0)
+							printf("无该场次类型电影！将退出查询\n");
+							else if (have1 == 1)
+							{
+								printf("若您想对场次排序，请从以下选项中选择一项：");
+								printf("1.根据放映开始时间排序：\n");
+								printf("2.根据场次票价排序：\n");
+								printf("3.根据场次余票数排序：\n"); 
+								printf("请输入您的选项：");
+								scanf("%c",&optionB);
+								if (optionB == '1')
+									Sort(); 
+									else if (optionB == '2')
+										Sort();
+										else if (optionB == '3')
+											Sort();
+											else
+											{
+												printf("非法输入！将退出程序！\n");
+												exit(1); 
+											} 
+							} 
+					}
+				}
+					else if (optionA == '3')
+					{
+						char HallType[MAXSIZE]="\0";
+						int have2=0;
+						SessionDetail TEMP2[200];
+						have2 = 0;
+						printf("请输入您想观看的场次的影厅类型（温馨提示：一共有2D,3D,4D,IMAX 4种类型）："); 
+						scanf("%s",HallType);
+						if ((strcmp(HallType,"2D") != 0) && (strcmp(HallType,"3D") != 0) && (strcmp(HallType,"4D") != 0) && (strcmp(HallType,"IMAX") != 0))
+						{
+							printf("非法输入！将退出系统！\n");
+							exit(1);
+						}
+						else
+						{
+							for (i = 0;i < i1;i++)
+							{
+								for (k = 4;k < 8;k++)
+									DATE[k] = FindFile[i].SessioNum[k];
+								Date = atoi(DATE);
+								Date1 = pt->tm_mon * 100 + pt->tm_mday;
+								if ((strcmp(FindFile[i].MovType,HallType) == 0) && (Date == Date1))
+								{
+									printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+									printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+									have2 = 1;
+									TEMP2[m] = FindFile[i];
+									m++;
+								}
+							}
+								if (have2 == 0)
+									printf("目前没有该类型的影厅场次！\n");
+								else 
+								{
+									printf("若您想对场次排序，请从以下选项中选择一项：");
+									printf("1.根据放映开始时间排序：\n");
+									printf("2.根据场次票价排序：\n");
+									printf("3.根据场次余票数排序：\n"); 
+									printf("请输入您的选项：");
+									scanf("%c",&optionB);
+									if (optionB == '1')
+										Sort(); 
+										else if (optionB == '2')
+											Sort();
+											else if (optionB == '3')
+												Sort();
+												else
+												{
+													printf("非法输入！将退出程序！\n");
+													exit(1); 
+												} 
+								}
+						} 
+					}
+						else
+						{
+							printf("非法输入！将退出程序！\n");
+							exit(1);
+						}
+		}
+	}
+}
+void MovAndCinSearch(char pathE[])
+{
+	SessionDetail FindFile[200];
+	int i=0,j=0,k=0,i1=0,l=0,m=0;
+	char movie[MAXSIZE]="\0";
+	char cinema[MAXSIZE]="\0";
+	char path[255]="\0";
+	char cc[255]="\0",DATE[255]="\0",DATEE[255]="\0",Ling[3]="\0";
+	FILE *fptr=NULL,*fptr1=NULL;
+	int Date=0,Date1=0;
+	char optionA='\0',optionB='\0';
+	time_t I;
+	time(&I);
+	struct tm* pt;
+	pt = localtime(&I);
+	Date = pt->tm_mon * 100 + pt->tm_mday;
+	itoa(Date,DATEE,4);
+	if (pt->tm_mon < 10)
+	{
+		strcpy(Ling,"0");
+		strcat(Ling,DATEE);
+	}
+	printf("温馨提示：目前输入影片+影院后，默认返还当前日期所有场次。");
+	printf("请输入您想搜索的影片："); 
+	scanf("%s",movie);
+	printf("\n请输入您想搜索的影院：");
+	scanf("%s",cinema);
+	
+	strcpy(path,pathE);
+	strcat(path,"\\mov_info\\");
+	strcat(path,movie);
+	strcat(path,".txt");
+						//打开对应的写着影片名的文件，读取所有该影片的场次编号
+	if ((fptr = fopen(path,"r")) == NULL)
+	{
+		printf("打开文件失败！将退出程序！\n");
+		exit(1);
+	}
+	else
+	{
+		fptr = fopen(path,"r");//打开影片名文件 
+		if(fgets(cc,MAXSIZE,fptr) == NULL)
+		printf("该影片暂无场次！\n");
+		else
+		{ 
+			for (i = 0;fgets(cc,MAXSIZE,fptr) != NULL;i++)//读取每行的场次编号 
+			{
+				fscanf(fptr,"%s",FindFile[i].SessioNum);
+				fscanf(fptr,"%s",FindFile[i].MovName);
+				fscanf(fptr,"%s",FindFile[i].CinName);
+				fscanf(fptr,"%d",&FindFile[i].MovieRoom);
+				fscanf(fptr,"%s",FindFile[i].Startime);
+				fscanf(fptr,"%s",FindFile[i].Stoptime);
+				fscanf(fptr,"%d",&FindFile[i].time);
+				fscanf(fptr,"%d",&FindFile[i].AllticketNum);
+				fscanf(fptr,"%d",&FindFile[i].remainTicket);
+				fscanf(fptr,"%lf",&FindFile[i].price);
+				fscanf(fptr,"%s",FindFile[i].language);
+				fscanf(fptr,"%s",FindFile[i].MovType);
+				fscanf(fptr,"%d",&FindFile[i].row);
+				fscanf(fptr,"%d",&FindFile[i].colum);
+			}
+			i1 = i;
+			for(i = 0;i < i1;i++)
+			{
+				for (k = 4;k < 8;i++)
+					DATE[k] = FindFile[i].SessioNum[k];//日期信息从场次编号中获取
+				Date = atoi(DATE);
+				Date1 = pt->tm_mon * 100 + pt->tm_mday; 
+				if ((Date == Date1) && (strcmp(FindFile[i].CinName,cinema) == 0)) 
+				{ 
+					printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+					printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+				}
+			}
+			printf("请根据您的需要从以下选项中选择一项：\n"); 
+			printf("1.根据日期过滤结果\n"); 
+			printf("2.根据放映场次类型过滤结果（仅当日）\n");
+			printf("3.根据放映影厅类型过滤结果（仅当日）\n");
+			printf("请输入您的选项：");
+			int have=0;
+			have = 0;
+			scanf("%c",&optionA);
+			printf("          影院          影片          日期          影厅          开始时间          结束时间          场次编号          票价          余票数\n");
+			if (optionA == '1')
+			{
+				SessionDetail TEMP0[200];
+				printf("请输入您想查询的日期：（温馨提示：直接输入月份+日期 例：9月2日则输入 0902）");
+				scanf("%d",Date1); 
+				for(i = 0;i < i1;i++)
+				{
+					for (k = 4;k < 8;i++)
+						DATE[k] = FindFile[i].SessioNum[k];//日期信息从场次编号中获取
+					Date = atoi(DATE); 
+					if ((Date == Date1) && (strcmp(FindFile[i].CinName,cinema) == 0)) 
+					{ 
+						printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+						printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+						have = 1;
+						TEMP0[j] = FindFile[i];
+						j++;
+					}
+				}
+				if (have == 0)
+					printf("该日暂无场次！将退出查询！\n");
+				else if (have == 1)
+				{
+					printf("若您想对场次排序，请从以下选项中选择一项：");
+					printf("1.根据放映开始时间排序：\n");
+					printf("2.根据场次票价排序：\n");
+					printf("3.根据场次余票数排序：\n"); 
+					printf("请输入您的选项：");
+					scanf("%c",&optionB);
+					if (optionB == '1')
+						Sort(path,Ling); 
+						else if (optionB == '2')
+							Sort(path,Ling);
+							else if (optionB == '3')
+								Sort(path,Ling);
+								else
+								{
+									printf("非法输入！将退出程序！\n");
+									exit(1); 
+								} 
+				}
+			}
+				else if (optionA == '2')
+				{
+					char SESTYPE[4]="\0";
+					int have1=0;
+					have1 = 0;
+					printf("请输入您想观看的场次类型：（温馨提示：中文输入CHN，英文输入ENG）");
+					scanf("%s",SESTYPE); 
+					if ((strcmp(SESTYPE,"CHN")!= 0) && (strcmp(SESTYPE,"ENG") != 0))
+					{
+						printf("非法输入!将退出程序！\n");
+						exit(1);
+					}
+					else
+					{
+						SessionDetail TEMP1[200];
+						for (i = 0;i < i1;i++)
+						{
+							for (k = 4;k < 8;k++)
+								DATE[k] = FindFile[i].SessioNum[k];
+							Date = atoi(DATE);
+							Date1 = pt->tm_mon * 100 + pt->tm_mday;
+							if ((strcmp(FindFile[i].MovType,SESTYPE) == 0)&& (strcmp(FindFile[i].CinName,cinema) == 0)&&(Date == Date1))
+							{
+								printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+								printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+								have1 = 1;
+								TEMP1[l] = FindFile[i];
+								l++;
+							}
+						}
+						if (have1 == 0)
+							printf("无该场次类型电影！将退出查询\n");
+							else if (have1 == 1)
+							{
+								printf("若您想对场次排序，请从以下选项中选择一项：");
+								printf("1.根据放映开始时间排序：\n");
+								printf("2.根据场次票价排序：\n");
+								printf("3.根据场次余票数排序：\n"); 
+								printf("请输入您的选项：");
+								scanf("%c",&optionB);
+								if (optionB == '1')
+									Sort(path,Ling); 
+									else if (optionB == '2')
+										Sort(path,Ling);
+										else if (optionB == '3')
+											Sort(path,Ling);
+											else
+											{
+												printf("非法输入！将退出程序！\n");
+												exit(1); 
+											} 
+							} 
+					}
+				}
+					else if (optionA == '3')
+					{
+						char HallType[MAXSIZE]="\0";
+						int have2=0;
+						SessionDetail TEMP2[200];
+						have2 = 0;
+						printf("请输入您想观看的场次的影厅类型（温馨提示：一共有2D,3D,4D,IMAX 4种类型）："); 
+						scanf("%s",HallType);
+						if ((strcmp(HallType,"2D") != 0) && (strcmp(HallType,"3D") != 0) && (strcmp(HallType,"4D") != 0) && (strcmp(HallType,"IMAX") != 0))
+						{
+							printf("非法输入！将退出系统！\n");
+							exit(1);
+						}
+						else
+						{
+							for (i = 0;i < i1;i++)
+							{
+								for (k = 4;k < 8;k++)
+									DATE[k] = FindFile[i].SessioNum[k];
+								Date = atoi(DATE);
+								Date1 = pt->tm_mon * 100 + pt->tm_mday;
+								if ((strcmp(FindFile[i].MovType,HallType) == 0)&& (strcmp(FindFile[i].CinName,cinema) == 0)&&(Date == Date1))
+								{
+									printf("%13s%13s\t%2d.%2d%9d\t%6s",FindFile[i].CinName,FindFile[i].MovName,pt->tm_mon,pt->tm_mday,FindFile[i].MovieRoom,FindFile[i].Startime);
+									printf("\t%6s%18s%10.2lf%11d\n",FindFile[i].Stoptime,FindFile[i].SessioNum,FindFile[i].price,FindFile[i].remainTicket);
+									have2 = 1;
+									TEMP2[m] = FindFile[i];
+									m++;
+								}
+							}
+								if (have2 == 0)
+									printf("目前没有该类型的影厅场次！\n");
+								else 
+								{
+									printf("若您想对场次排序，请从以下选项中选择一项：");
+									printf("1.根据放映开始时间排序：\n");
+									printf("2.根据场次票价排序：\n");
+									printf("3.根据场次余票数排序：\n"); 
+									printf("请输入您的选项：");
+									scanf("%c",&optionB);
+									if (optionB == '1')
+										Sort(path,Ling); 
+										else if (optionB == '2')
+											Sort(path,Ling);
+											else if (optionB == '3')
+												Sort(path,Ling);
+												else
+												{
+													printf("非法输入！将退出程序！\n");
+													exit(1); 
+												} 
+								}
+						} 
+					}
+						else
+						{
+							printf("非法输入！将退出程序！\n");
+							exit(1);
+						}
+		}
+	}
+}  
+void HotSession(char path[])
+{
+}
 void SetPositionByLine(FILE *fp,int line){   //将文件指针定位到指定行
     int i=0;
     char buffer[MAX_LENGTH_OF_LINE+1]={'\0'};
     fpos_t pos;
     rewind(fp);
-    for(i=1;i<line;i++)
+    for(i=0;i<=line;i++)
         fgets(buffer,MAX_LENGTH_OF_LINE,fp);
     fgetpos(fp,&pos);
 }
-int JudgeSes(char session,char path[])
+int JudgeSes(char sessions[],char path[])
 {
 	char id[11]="\0",Id[11]="\0";
 	int i=0,j=0,find=0,find1=0,l=0;
 	FILE *fptr=NULL;
 	strcpy(id,path);
+	strcat(id,"\\session_info\\");
+	strcat(id,sessions);
+	strcat(id,".txt");
 	if ((fptr = fopen(id,"r")) == NULL)
 	{
 		find1 = 0;
@@ -139,38 +611,10 @@ int JudgeSes(char session,char path[])
 		find1 = 1;
 		return find1;
 	}
-	/*if ((fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r")) == NULL)//在用户名文件里找人 
-			{
-				printf("Fail to read!\n");
-				l = 0;
-				return l;
-			}
-			else
-				fptr = fopen("C:/Users/DELL/Desktop/IOCS/accounts/user/Users.acc","r");
-			while(fgets(Id,12,fptr) != NULL && find != 1)//遍历每行的id，直至找到或者全部搜完 
-     		{
-     			if (strcmp(id,Id) == 0)//找到对应的用户id 
-     			{
-					find = 1;
-					printf("Successfully Find The User!\n");//寻找到了用户的ID 
-					if (strlen(basics.MovieOrCinema) == 4)
-						l = 2;
-					else
-						l = 1;
-					return l;
-				}
-     		}
-     		if (fgets(Id,12,fptr) == NULL && find != 1 )//遍历完并且没有找到 
-			{
-				printf("Can't Find The User!\n");
-				l = 0;
-				return l;
-			} 
-		}*/
-	
 }
-Order CreateOrder(char session[],char path[]){
+Order CreateOrder(char path[],char sessioN[]){
     char pathAC[MAXSIZE]="\0",temp1[MAXSIZE]="\0";
+    char MOVIE[MAXSIZE]="\0",CINEMA[MAXSIZE]="\0";
 	FILE *fp=NULL;
 	Order temp;
     temp.del=0;
@@ -183,252 +627,83 @@ Order CreateOrder(char session[],char path[]){
     temp.date.day=p->tm_mday;
     temp.date.hour=p->tm_hour;
     temp.date.min=p->tm_min;
-    
+    temp.MoneyAccount=10000;
     strcpy(pathAC,path);
-    strcat(pathAC,"\\");
+    strcat(pathAC,"\\session_info\\");
+    strcat(pathAC,sessioN);
+    strcat(pathAC,".txt");
     															//拼接出文件路径 
-    if ((fp = fopen(pathAC,"r")) != NULL)
+    printf("请输入您的ID:");
+    scanf("%s",order.ID);
+	if ((fp = fopen(pathAC,"r")) != NULL)
 	{
-		fscanf(fp,"%s",temp);
-		fscanf(fp,"%s",basics.Movie);
-		fscanf(fp,"%s",basics.Cinema);
-	strcpy(temp.MovName,basics.Movie);
-	strcpy(temp.CinName,basics.Cinema);
+		fscanf(fp,"%s",temp1);
+		fscanf(fp,"%s",MOVIE);
+		fscanf(fp,"%s",CINEMA);
+		strcpy(temp.MovName,MOVIE);
+		strcpy(temp.CinName,CINEMA);
 	}
 	else
 	{
 		printf("文件打开失败！将退出程序！\n");
 		exit(1); 
 	}
-	/*if(strlen(basics.MovieOrCinema) == 4)
-		strcpy(temp.CinName,basics.MovieOrCinema);
-	else
-		strcpy(temp.MovName,basics.MovieOrCinema);*/
     return temp;
-}
-
-char *MovieSearch(Basic basics,char path9[])
-{
-	int i=0,j=0,k=0;
-	char movie[MAXSIZE]="\0";
-	char path[255]="\0";
-	static char Changci[MAXSIZE]="\0";
-	char path1[255]="\0";
-	FILE *fptr=NULL,*fptr1=NULL;
-	strcpy(path,"C:\Users/DELL/Desktop/IOCS/cma_info");
-	strcat(path,basics.MovieOrCinema);
-	strcat(path,".txt");//打开对应的写着影片名的文件，读取所有该影片的场次编号 
-	if ((fptr = fopen(path,"r")) == NULL)
-	{
-		printf("Open Fail Failure...\n");
-		return NULL;
-	}
-	else 
-	{
-		fptr = fopen(path,"r");//打开影片名文件 
-		if(fgets(Changci,MAXSIZE,fptr) == NULL)
-			printf("No Session Now For This Movie.\n");
-		else
-		{ 
-			for (i = 0;fgets(Changci,MAXSIZE,fptr) != NULL;i++)//读取每行的场次编号 
-			{
-				fscanf(fptr,"%s",Changci);
-				strcpy(path1,"C:/Users/DELL/Desktop/IOCS/sessions/");
-				strcat(path1,Changci);
-				strcat(path1,".ses");//读取场次编号文件 
-				if ((fptr1 = fopen(path1,"r")) == NULL)
-				{
-					printf("Open Fail Failure...\n");
-					return NULL;
-				}
-					else
-					{
-						printf("      Cinema            Movie            Date      Hall      Session      Price\n");
-						char CC[MAXSIZE]="\0";
-						int line=0,column=0;
-						char MOVIENAME[MAXSIZE]="\0",CINEMA[MAXSIZE]="\0",DATE[4]="\0",START[6]="\0",END[6]="\0";
-						char LANG[6]="\0",TYPE[6]="\0",COUPON[MAXSIZE]="\0";
-						int HALL=0,LENGTH=0,TOTAL=0,REMAIN=0;
-						double PRICE=0.0;
-						fptr1 = fopen(path1,"r");
-						fscanf(fptr1,"%s",CC);
-						fscanf(fptr1,"%s",MOVIENAME);
-						fscanf(fptr1,"%s",CINEMA);
-						fscanf(fptr1,"%d",&HALL);
-						fscanf(fptr1,"%s",START);
-						fscanf(fptr1,"%s",END);
-						fscanf(fptr1,"%d",&LENGTH);
-						fscanf(fptr1,"%d",&TOTAL);
-						fscanf(fptr1,"%d",&REMAIN);
-						fscanf(fptr1,"%lf",&PRICE);//按每行顺序读取所需数据 
-						fscanf(fptr1,"%s",LANG);
-						fscanf(fptr1,"%s",TYPE);
-						fscanf(fptr1,"%s",COUPON);
-						fscanf(fptr1,"%d",&line);
-						fscanf(fptr1,"%d",&column);
-						for (i = 4;i < 8;i++)
-							DATE[i] = CC[i];//日期信息从场次编号中获取 
-						printf("%10s%24s%13d%10d%16s%9.2lf\n",CINEMA,MOVIENAME,DATE,HALL,CC,PRICE);//打印所有的该影片场次具体信息 
-						printf("Please Enter The Session You Want To Order:");
-						scanf("%s",Changci);//用户输入想要的场次 
-					}
-			}
-		}
-	}
-	return Changci;
-}
-char *CinemaSearch(Basic basics)
-{
-	int i=0,j=0,k=0;
-	char movie[MAXSIZE]="\0";
-	char path[255]="\0";
-	static char seSSion[MAXSIZE]="\0";
-	char path1[255]="\0";
-	FILE *fptr=NULL,*fptr1=NULL;
-	strcpy(path,"C:/Users/DELL/Desktop/IOCS/cma_info");
-	strcat(path,basics.MovieOrCinema);
-	strcat(path,".txt");//打开对应的写着影片名的文件，读取所有该影片的场次编号 
-	if ((fptr = fopen(path,"r")) == NULL)
-	{
-		printf("Open Fail Failure...\n");
-		return NULL;
-	}
-	else 
-	{
-		fptr = fopen(path,"r");//打开影片名文件 
-		if(fgets(seSSion,MAXSIZE,fptr) == NULL)
-			printf("No Session Now For This Movie.\n");
-		else
-		{ 
-			for (i = 0;fgets(seSSion,MAXSIZE,fptr) != NULL;i++)//读取每行的场次编号 
-			{
-				fscanf(fptr,"%s",seSSion);
-				strcpy(path1,"C:/Users/DELL/Desktop/IOCS/sessions/");
-				strcat(path1,seSSion);
-				strcat(path1,".ses");//读取场次编号文件 
-				if ((fptr1 = fopen(path1,"r")) == NULL)
-				{
-					printf("Open Fail Failure...\n");
-					return NULL;
-				}
-					else
-					{
-						printf("      Cinema            Movie            Date      Hall      Session      Price\n");
-						char CC[MAXSIZE]="\0";
-						int line=0,column=0;
-						char MOVIENAME[MAXSIZE]="\0",CINEMA[MAXSIZE]="\0",DATE[4]="\0",START[6]="\0",END[6]="\0";
-						char LANG[6]="\0",TYPE[6]="\0",COUPON[MAXSIZE]="\0";
-						int HALL=0,LENGTH=0,TOTAL=0,REMAIN=0;
-						double PRICE=0.0;
-						fptr1 = fopen(path1,"r");
-						fscanf(fptr1,"%s",CC);
-						fscanf(fptr1,"%s",MOVIENAME);
-						fscanf(fptr1,"%s",CINEMA);
-						fscanf(fptr1,"%d",&HALL);
-						fscanf(fptr1,"%s",START);
-						fscanf(fptr1,"%s",END);
-						fscanf(fptr1,"%d",&LENGTH);
-						fscanf(fptr1,"%d",&TOTAL);
-						fscanf(fptr1,"%d",&REMAIN);
-						fscanf(fptr1,"%lf",&PRICE);//按每行顺序读取所需数据 
-						fscanf(fptr1,"%s",LANG);
-						fscanf(fptr1,"%s",TYPE);
-						fscanf(fptr1,"%s",COUPON);
-						fscanf(fptr1,"%d",&line);
-						fscanf(fptr1,"%d",&column);
-						for (i = 4;i < 8;i++)
-							DATE[i] = CC[i];//日期信息从场次编号中获取 
-						printf("%10s%24s%13d%10d%16s%9.2lf\n",CINEMA,MOVIENAME,DATE,HALL,CC,PRICE);//打印所有的该影片场次具体信息 
-						printf("Please Enter The Session You Want To Order:");
-						scanf("%s",seSSion);//用户输入想要的场次 
-					}
-			}
-		}
-	}
-	return Changci;
 }
 SessionDetail ReadSession(char sessionum[],char path[]){//将场次信息文件写入结构体中
     SessionDetail temp;
     int i,j,seat=0,seatx=0,seaty=0;
-    char str[5]={'\0'};
     char str1[MAXSIZE]={'\0'};
-    strcpy(temp.SessioNum,sessionum);
     
-	strcpy(str1,path);
-    strcat(str1,sessionum);
+    strcpy(temp.SessioNum,sessionum);
+    strcpy(str1,path);
     strcat(str1,".txt");
-    												//拼接出场次文件路径 
-	FILE *fp=NULL;
-    if((fp = fopen(str1,"r"))==NULL)
-    {
-		printf("文件打开失败！将退出系统！\n");  
-		exit(1);
-	}
-    SetPositionByLine(fp,0);
+    
+	FILE *fp;
+    if((fp = fopen(str1,"r")) == NULL)
+        exit(0);
+    SetPositionByLine(fp,2);
     fscanf(fp,"%s%s%d",temp.MovName,temp.CinName,&temp.MovieRoom);
     fscanf(fp,"%s%s%d",temp.Startime,temp.Stoptime,&temp.time);
     fscanf(fp,"%d%d%lf",&temp.AllticketNum,&temp.remainTicket,&temp.price);
-    fscanf(fp,"%s%s%d%d",temp.language,temp.MovType,&temp.row,&temp.colum);
-    for(i = 0;i < temp.row;i++)
-        for(j = 0;j < temp.colum;j++)
+    fscanf(fp,"%s%s%f%d%d",temp.language,temp.MovType,&temp.discount,&temp.row,&temp.colum);
+    for(i = 1;i <= temp.row;i++)
+        for(j = 1;j <= temp.colum;j++)
             temp.seat[i][j]=0;
-    SetPositionByLine(fp,13);
-    while(!feof(fp))
-	{
-        fscanf(fp,"%s",str);
-        seat = atoi(str);
+    SetPositionByLine(fp,16);
+    while(!feof(fp)){
+        fscanf(fp,"%d",seat);
         seatx = seat / 100;
         seaty = seat % 100;
-        temp.seat[seatx-1][seaty-1]=1;
+        temp.seat[seatx][seaty]=1;
     }
     fclose(fp);
     return temp;
 }
-bool Seat_Is_Legal(Order order,SessionDetail session){   //判断选座是否合法
-    int i,flag=1;
-    for(i=0;i<order.SeatNum&&flag;i++){
-        if(order.seat[i][1]==2){
-            if(session.seat[order.seat[i][0]][order.seat[i][1]-1]||
-               session.seat[order.seat[i][0]][order.seat[i][0]+2])
+
+bool Order_Is_Legal(Order order,SessionDetail session){//此处有所修改 
+    int i,j,flag=1;
+    for(i=0;i<order.SeatNum&&flag;i++)
+    {   // for(j=0;j<order.SeatNum&&flag;j++)
+            if(session.seat[order.seat[i][0]-1][order.seat[i][1]-1]||
+               session.seat[order.seat[i][0]+1][order.seat[i][1]+1]||
+			   order.seat[i][0] > session.row||order.seat[i][1] > session.colum)
                 flag=0;
-        }
-        else if(order.seat[i][1]==session.colum-1){
-            if(session.seat[order.seat[i][0]][order.seat[i][1]+1]||
-               session.seat[order.seat[i][0]][order.seat[i][0]-2])
-                flag=0;
-        }
-        else if(order.seat[i][1]==1){
-            if(session.seat[order.seat[i][0]][order.seat[i][1]+2])
-                flag=0;
-        }
-        else if(order.seat[i][1]==session.colum){
-            if(session.seat[order.seat[i][0]][order.seat[i][1]-2])
-                flag=0;
-        }
-        else{
-            if(session.seat[order.seat[i][0]][order.seat[i][1]-2]||
-               session.seat[order.seat[i][0]][order.seat[i][0]+2]||
-               session.seat[order.seat[i][0]][order.seat[i][0]]||
-               order.seat[i][0]>session.row||order.seat[i][1]>session.colum)
-                flag=0;
-        }
-    }
-    return flag;
+	}
+	return flag;
 }
-bool Money_Is_Enough(Order order){
-    if(order.MoneyAccount<order.cost)
-        return FALSE;
-    return TRUE;
-}
-bool Moive_Is_Repeat(char id[],SessionDetail session){
+bool Movie_Is_Repeat(char id[],SessionDetail session,char path[]){
     int flag=1;
     int i=3;
-    char movie[MAXSIZE]={'\0'};
-    strcat(id,".txt");
+    char movie[MAXSIZE]={'\0'},temp[MAXSIZE]={'\0'};
     if(SearchOrder(id)==0)
         return TRUE;
+    strcpy(temp,path);
+    strcat(temp,"\\order_info\\");
+    strcat(temp,id);
+    strcat(temp,".txt");
     FILE *fp;
-    if((fp=fopen(id,"r"))==NULL){
+    if((fp=fopen(temp,"r"))==NULL){
         printf("打开文件失败!\n");
         exit(0);
     }
@@ -442,33 +717,36 @@ bool Moive_Is_Repeat(char id[],SessionDetail session){
     }
     return flag;
 }
-bool Time_Is_Conflict(char id[],SessionDetail session){
-    char time[MAXSIZE]={'\0'};
+bool Time_Is_Conflict(char id[],SessionDetail session,char path[]){
+    char time1[MAXSIZE]={'\0'},time2[MAXSIZE]={'\0'},temp[MAXSIZE]={'\0'};
     int Startmin1=time_to_min(session.Startime);
-    int Stopmin1=time_to_min(session.Stoptime);
-    int Startmin2=0;
-    strcat(id,".txt");
+    int Startmin2=0,Stopmin2=0;
     int i=4,flag=1;
     if(SearchOrder(id)==0)
         return TRUE;
-    
+    strcpy(temp,path);
+    strcat(temp,"\\order_info\\");
+    strcpy(temp,id);
+    strcat(temp,".txt");
     FILE *fp;
-    if((fp=fopen(id,"r"))==NULL){
+    if((fp=fopen(temp,"r"))==NULL){
         printf("文件打开失败\n");
         exit(0);
     }
     SetPositionByLine(fp, i);
     while(!feof(fp)&&flag){
-        fscanf(fp,"%s",time);
-        Startmin2=time_to_min(time);
-        if(Startmin2>=Startmin1&&Stopmin1)
+        fscanf(fp,"%s",time1);
+        fscanf(fp,"%s",time2);
+        Startmin2=time_to_min(time1);
+        Stopmin2=time_to_min(time2);
+        if(Startmin1>=Startmin2&&Startmin1<=Stopmin2)
             flag=0;
         i=i+17;
         SetPositionByLine(fp, i);
     }
     return flag;
 }
-void CurrentSeat(SessionDetail session,){
+void CurrentSeat(SessionDetail session){
     int i,j;
     printf("当前选座情况如图。其中1代表该位置已被占用，0代表该位置可以选择。\n");
     for(i=0;i<session.row;i++){
@@ -519,22 +797,41 @@ Order CompleteOrder(Order order,SessionDetail session){
     order.cost=order.SeatNum*session.price;
     return order;
 }
-/*char *GetPath(Order order)
-{
-	int k=0; 
-	char cc[MAXSIZE]="\0",iD[5]=".ses";
-	static char path[255]="\0";
-	strcpy(cc, order.Sessions);
-	for (k = 0;cc[k] != '\n';k++);
-		cc[k] = '\0';
-	strcat(cc,iD);//SerialNum即为该场次的文件名    
-	strcpy(path,"C:/Users/DELL/Desktop/IOCS/sessions/");
-	strcat(path,cc);
-	for (k = 0;path[k] != '\0';k++);
-		path[k] = '\0'; //截取出正确的文件路径，放入path 
-	return path;
-}*/
-
+void ReadOrder(Order order,char path[]){         //将订单信息写入文件
+    int i=0;
+    char name[MAXSIZE]={'\0'};
+    strcpy(name,path);
+    strcat(name,"\\order_info\\");
+    strcat(name,order.ID);
+    strcat(name,".txt");
+    
+    FILE *fp;
+    if(SearchOrder(order.ID))
+        fp=fopen(name,"a+");
+    else
+        fp=fopen(name,"w");
+    if(fp==NULL){
+        printf("写入文件失败!\n");
+        exit(0);
+    }
+    fprintf(fp,"%s\n",order.ID);
+    fprintf(fp,"%d\n",order.del);
+    fprintf(fp,"%s\n",order.MovName);
+    fprintf(fp,"%s\n",order.Startime);
+    fprintf(fp,"%s\n",order.Stoptime);
+    fprintf(fp,"%s\n",order.CinName);
+    fprintf(fp,"%d\n",order.MovieRoom);
+    fprintf(fp,"%s\n",order.Sessions);
+    fprintf(fp,"%d\n",order.SeatNum);
+    for(i=0;i<order.SeatNum;i++)
+        fprintf(fp,"%d %d\n",order.seat[i][0],order.seat[i][1]);
+    fprintf(fp,"%d\n",order.date.year);
+    fprintf(fp,"%d\n",order.date.month);
+    fprintf(fp,"%d\n",order.date.day);
+    fprintf(fp,"%d\n",order.date.hour);
+    fprintf(fp,"%d\n",order.date.min);
+    fprintf(fp,"%d\n",order.cost);
+}
 void DealOrder(Order order,char path8[])
 {
 	FILE *fptr=NULL,*fptr1=NULL,*fptr2=NULL;
@@ -546,7 +843,10 @@ void DealOrder(Order order,char path8[])
 	int seat1=0,remain1=0,k=0,k1=0,k2=0,k3=0,l=0;//占的座位的添加 
 	int SW=0,GW=0;
 	
-	strcpy(path,path8);		
+	strcpy(path,path8);
+	strcat(path,"\\session_info\\");
+	strcat(path,order.Sessions);
+	strcat(path,".txt");		
 							//拼接出文件路径
 							 
 	if((fptr = fopen(path,"r+")) == NULL)//寻找名字叫该场次的场次文件 (该目录下） 
@@ -649,9 +949,10 @@ int TIME(Order order,char path[])
 	ptr = localtime(&It);
 	return timeexceed;
 }
-void Pay(Order order,char path[])
+Order Pay(Order order)
 {
-
+    order.MoneyAccount=order.MoneyAccount-order.cost;
+    return order;
 }
 void Recover(Order order,char path[])
 {
@@ -662,7 +963,10 @@ void Recover(Order order,char path[])
 	int  line=0,column=0,hall=0,totalseat=0,remain=0,length=0;
 	double price=0.0;
 	int *Occupied1=NULL;  //用于读取场次文件里的各项数据/字符
-	strcpy(path4,GetPath(order));		
+	strcpy(path4,path);		
+	strcat(path4,"\\session_info\\");
+	strcat(path4,order.Sessions);
+	strcat(path4,".txt");
 		if((fpt = fopen(path4,"w+")) == NULL)//寻找名字叫该场次的场次文件 (该目录下） 
         printf("Open the file failure.Fail to recover.\n");
     	else
@@ -727,10 +1031,12 @@ void Recover(Order order,char path[])
 }
 int OrderSystem(char path[])
 {
-	int result=0,judge,legal1,i=0,i1=0,SRHF=0,TimeExceed=0,SesLegal=0;
-	char Session[MAXSIZE],pathAB="\0";
+	int result=0,judge,legal1,i=0,i1=0,SRHF=0,SesLegal=0,i2=0;
+	SessionDetail session;
+	char Session[MAXSIZE],pathAB[MAXSIZE]="\0";
 	int JudgeOrder=0;
-	strcpy(path,pathAB);
+	char TimeExceed='\0'; 
+	strcpy(pathAB,path);
 	printf("**********欢迎进入购票系统！**********\n");
 	printf("        请输入您想购买的场次："); 
 	scanf("%s",Session);
@@ -740,35 +1046,41 @@ int OrderSystem(char path[])
 	SesLegal = JudgeSes(Session,pathAB);
 	if (SesLegal == 1)		//场次合法 
 	{
-		order = CreateOrder(basics);	
+		order = CreateOrder(pathAB,Session);	
 		Detail = ReadSession(Session,pathAB); //通过用户选择的场次返还更具体的信息     	   
-		order = SelectSeat(order,Detail,pathAB);		   //用户开始选座 
-		order = CompleteOrder(order,Detail,pathAB);	   //用户最后确认订单 传过来的订单一定是合法的 
+		if (Time_Is_Conflict(order.ID, Detail) == 0)
+        	printf("您预订的电影:%s和您已购买的电影:%s时间上冲突\n",order.MovName,session.MovName);
+    	if (Movie_Is_Repeat(order.ID, Detail,pathAB) == 0)
+        	printf("您之前已经预定过该电影，您确定要再次预订吗？\n");
+		order = SelectSeat(order,Detail);		   //用户开始选座 
+		ReadOrder(order); 
 		DealOrder(order,pathAB);
 		if (order.legal == 1) 
 		{
-			printf("Do you want to delete your order ? If you want to delete, please print 1;if not, please print 0.");
+			printf("请问您要选择删除订单吗？如果删除，请输入1；否则输入0。请不要输入其他字符。\n");
 			scanf("%d",&order.del);
 			if (order.del == 0)//如果订单有效 
 			{
-				TimeExceed = TIME(order);
-				if (TimeExceed == 0)//未超时 
+				printf("您是否要支付订单？支付请输入1，否则请输入0。\n请输入：");
+				scanf("%c",&TimeExceed);
+				if (TimeExceed == '1')//选择支付 
 				{
-					Pay(order);
-					printf("成功完成订单及支付!\n");
+					order = Pay(order);
+					printf("成功完成订单支付!\n");
 					JudgeOrder = 1;
 					return JudgeOrder;
 				}
 				else
 				{ 
-					printf("订单支付超时！请\n");
+					Recover(order,pathAB); 
+					printf("订单未支付，此次订单无效！\n");
 					JudgeOrder = 0;
 					return JudgeOrder;
 				} 
 			}
 				else if (order.del == 1)
 				{
-					Recover(order);
+					Recover(order,pathAB);
 					printf("成功删除订单！\n");
 					JudgeOrder = 0;
 					return JudgeOrder;
@@ -793,30 +1105,27 @@ void SEARCH(char path[])
 	char pathAA[MAXSIZE]="\0";
 	strcpy(pathAA,path);
 	char option='\0',EntOS='\0';
-	int srhf=0,i=0;
+	int srhf=0,i=0,i1=0;
 	srhf = 0;
 	for (i = 0;srhf != 1;i++)
 	{
 		printf("*********欢迎来到查询&购票系统!**********\n");
 		printf("\t1.根据影片名搜索\n");
-		printf("\t2.根据影院名搜索\n");
-		printf("\t3.根据影院名+影片名搜索\n");
-		printf("\t4.热门场次推荐\n");
+		printf("\t2.根据影片名+影院名搜索\n");
+		printf("\t3.热门场次推荐\n");
 		printf("************************************************\n");	
 		printf("\t请选择序号:");
 		EntOS = 0;
 		scanf("%c",&option);
-		if (option >= '1' && option <= '4')
+		if (option >= '1' && option <= '3')
 		{
 			srhf = 1;
 			if (option == '1')
 				MovSearch(pathAA);
 				else if (option == '2')
-					CinSearch(pathAA);
+					MovAndCinSearch(pathAA);
 					else if (option == '3')
-						MovAndCinSearch(pathAA);
-						else if (option == '4')
-							HotSession(pathAA);
+						HotSession(pathAA);
 			printf("请问您是否选择订票?\n");
 			printf("如果选择订票，请输入1;否则，输入0.\n");
 			printf("温馨提示：请勿输入其他字符.\n");
@@ -824,7 +1133,7 @@ void SEARCH(char path[])
 			scanf("%c",&EntOS);
 			if (EntOS == '1')
 			{
-				srhf = OrderSystem();
+				srhf = OrderSystem(pathAA);
 				if (srhf == 0)
 					printf("购票失败！将重新进入查询&购票系统。\n");
 					else if (srhf == 1)
