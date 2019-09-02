@@ -19,7 +19,7 @@ typedef struct movie{//场次信息结构体
     int Curseat[MAXSIZE][2];   //已占座位信息
 }SessionDetail;
 void ShowSession(SessionDetail session);
-
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session);
 void ShowSession(SessionDetail session)
 {
     int i = 0;
@@ -41,4 +41,21 @@ void ShowSession(SessionDetail session)
     printf("已占座位信息:\n");
     for (i = 0; i < session.AllticketNum - session.remainTicket; i++)
         printf("%d排%d座\n", session.Curseat[i][0], session.Curseat[i][1]);
+}
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session)
+{
+    int i = 0, seat = 0, seatx = 0, seaty = 0;
+    fscanf(fp, "%s%s%s%d", session.SessioNum, session.MovName, session.CinName, &session.MovieRoom);
+    fscanf(fp, "%s%s%d%d", session.Startime, session.Stoptime, &session.time, &session.AllticketNum);
+    fscanf(fp, "%d%lf%s%s", &session.remainTicket, &session.price, session.language, session.MovType);
+    fscanf(fp, "%f%d%d", &session.discount, &session.row, &session.colum);
+    while (!feof(fp))
+    {
+        fscanf(fp, "%d", &seat);
+        seatx = seat / 100;
+        seaty = seat % 100;
+        session.Curseat[i][0] = seatx;
+        session.Curseat[i++][1] = seaty;
+    }
+    return session;
 }
