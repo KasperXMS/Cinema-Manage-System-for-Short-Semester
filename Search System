@@ -60,6 +60,7 @@ void LangSearch(char path[]);
 void TypeSearch(char path[]);
 void HotSession(char path[]);
 void SEARCH(char path[]);
+int time_to_min(char time[]);
 void SetPositionByLine(FILE *fp,int line);
 int JudgeSes(char session,char path[]);
 Order CreateOrder(char session[]);
@@ -67,7 +68,10 @@ char *MovieSearch(Basic basics,char path[]);	//search sessions concerning this m
 char *CinemaSearch(Basic basics);	//search sessions concering this cinema
 SessionDetail ReadSession(char sessionum[],char path[]);
 void CurrentSeat(SessionDetail session);
-bool Order_Is_Legal(Order order,SessionDetail session);
+bool Seat_Is_Legal(Order order,SessionDetail session);
+bool Time_Is_Conflict(char id[],SessionDetail session);
+bool Money_Is_Enough(Order order);
+bool Moive_Is_Repeat(char id[],SessionDetail session);
 Order SelectSeat(Order order,SessionDetail session);
 Order CompleteOrder(Order order,SessionDetail session);
 char *GetPath(Order order);			//get the path of the file of the session
@@ -97,12 +101,23 @@ void TypeSearch(char path[])
 void HotSession(char path[])
 {
 }
+int time_to_min(char time[]){   //将字符串时间格式转换为分钟
+    char hour[3]={'\0'};
+    char min[3]={'\0'};
+    int h=0;
+    int m=0;
+    strncpy(hour,time,2);
+    strncpy(min,time+3,2);
+    h=atoi(hour);
+    m=atoi(min);
+    return h*60+m;
+}
 void SetPositionByLine(FILE *fp,int line){   //将文件指针定位到指定行
     int i=0;
     char buffer[MAX_LENGTH_OF_LINE+1]={'\0'};
     fpos_t pos;
     rewind(fp);
-    for(i=0;i<=line;i++)
+    for(i=1;i<line;i++)
         fgets(buffer,MAX_LENGTH_OF_LINE,fp);
     fgetpos(fp,&pos);
 }
@@ -369,16 +384,89 @@ SessionDetail ReadSession(char sessionum[],char path[]){//将场次信息文件�
     fclose(fp);
     return temp;
 }
-bool Order_Is_Legal(Order order,SessionDetail session){//此处有所修改 
-    int i,j,flag=1;
-    for(i=0;i<order.SeatNum&&flag;i++)
-    {   // for(j=0;j<order.SeatNum&&flag;j++)
-            if(session.seat[order.seat[i][0]-1][order.seat[i][1]-1]||
-               session.seat[order.seat[i][0]+1][order.seat[i][1]+1]||
-			   order.seat[i][0] > session.row||order.seat[i][1] > session.colum)
+bool Seat_Is_Legal(Order order,SessionDetail session){   //判断选座是否合法
+    int i,flag=1;
+    for(i=0;i<order.SeatNum&&flag;i++){
+        if(order.seat[i][1]==2){
+            if(session.seat[order.seat[i][0]][order.seat[i][1]-1]||
+               session.seat[order.seat[i][0]][order.seat[i][0]+2])
                 flag=0;
-	}
-	return flag;
+        }
+        else if(order.seat[i][1]==session.colum-1){
+            if(session.seat[order.seat[i][0]][order.seat[i][1]+1]||
+               session.seat[order.seat[i][0]][order.seat[i][0]-2])
+                flag=0;
+        }
+        else if(order.seat[i][1]==1){
+            if(session.seat[order.seat[i][0]][order.seat[i][1]+2])
+                flag=0;
+        }
+        else if(order.seat[i][1]==session.colum){
+            if(session.seat[order.seat[i][0]][order.seat[i][1]-2])
+                flag=0;
+        }
+        else{
+            if(session.seat[order.seat[i][0]][order.seat[i][1]-2]||
+               session.seat[order.seat[i][0]][order.seat[i][0]+2]||
+               session.seat[order.seat[i][0]][order.seat[i][0]]||
+               order.seat[i][0]>session.row||order.seat[i][1]>session.colum)
+                flag=0;
+        }
+    }
+    return flag;
+}
+bool Money_Is_Enough(Order order){
+    if(order.MoneyAccount<order.cost)
+        return FALSE;
+    return TRUE;
+}
+bool Moive_Is_Repeat(char id[],SessionDetail session){
+    int flag=1;
+    int i=3;
+    char movie[MAXSIZE]={'\0'};
+    strcat(id,".txt");
+    if(SearchOrder(id)==0)
+        return TRUE;
+    FILE *fp;
+    if((fp=fopen(id,"r"))==NULL){
+        printf("打开文件失败!\n");
+        exit(0);
+    }
+    SetPositionByLine(fp, i);
+    while(!feof(fp)&&flag){
+        fscanf(fp,"%s",movie);
+        if(strcmp(movie,session.MovName)==0)
+            flag=0;
+        i=i+17;
+        SetPositionByLine(fp, i);
+    }
+    return flag;
+}
+bool Time_Is_Conflict(char id[],SessionDetail session){
+    char time[MAXSIZE]={'\0'};
+    int Startmin1=time_to_min(session.Startime);
+    int Stopmin1=time_to_min(session.Stoptime);
+    int Startmin2=0;
+    strcat(id,".txt");
+    int i=4,flag=1;
+    if(SearchOrder(id)==0)
+        return TRUE;
+    
+    FILE *fp;
+    if((fp=fopen(id,"r"))==NULL){
+        printf("文件打开失败\n");
+        exit(0);
+    }
+    SetPositionByLine(fp, i);
+    while(!feof(fp)&&flag){
+        fscanf(fp,"%s",time);
+        Startmin2=time_to_min(time);
+        if(Startmin2>=Startmin1&&Stopmin1)
+            flag=0;
+        i=i+17;
+        SetPositionByLine(fp, i);
+    }
+    return flag;
 }
 void CurrentSeat(SessionDetail session,){
     int i,j;
