@@ -1,40 +1,57 @@
 #include <stdio.h>
 #define MAXSIZE 101
-typedef struct movie{//åœºæ¬¡ä¿¡æ¯ç»“æ„ä½“
-    char SessioNum[13];     //åœºæ¬¡å·
-    char MovName[MAXSIZE];  //å½±ç‰‡å
-    char CinName[MAXSIZE];  //å½±é™¢å
-    int MovieRoom;          //å½±å…
-    char Startime[6];           //å¼€å§‹æ—¶é—´
-    char Stoptime[6];           //ç»“æŸæ—¶é—´
-    int time;               //æ€»æ—¶é•¿
-    int AllticketNum;       //æ€»ç¥¨æ•°
-    int remainTicket;       //ä½™ç¥¨æ•°
-    double price;           //ç¥¨ä»·
-    char language[20];      //è¯­è¨€ç±»å‹
-    char MovType[6];        //å½±ç‰‡ç±»å‹
-    float discount;         //ä¼˜æƒ æ”¿ç­–
-    int row;                //æ€»æ’æ•°
-    int colum;              //æ€»åˆ—æ•°
-    int seat[MAXSIZE][MAXSIZE];//åº§ä½ä¿¡æ¯
-    int Curseat[MAXSIZE][2];   //å·²å åº§ä½ä¿¡æ¯
+typedef struct movie{//³¡´ÎĞÅÏ¢½á¹¹Ìå
+    char SessioNum[13];     //³¡´ÎºÅ
+    char MovName[MAXSIZE];  //Ó°Æ¬Ãû
+    char CinName[MAXSIZE];  //Ó°ÔºÃû
+    int MovieRoom;          //Ó°Ìü
+    char Startime[6];           //¿ªÊ¼Ê±¼ä
+    char Stoptime[6];           //½áÊøÊ±¼ä
+    int time;               //×ÜÊ±³¤
+    int AllticketNum;       //×ÜÆ±Êı
+    int remainTicket;       //ÓàÆ±Êı
+    double price;           //Æ±¼Û
+    char language[20];      //ÓïÑÔÀàĞÍ
+    char MovType[6];        //Ó°Æ¬ÀàĞÍ
+    float discount;         //ÓÅ»İÕş²ß
+    int row;                //×ÜÅÅÊı
+    int colum;              //×ÜÁĞÊı
+    int seat[MAXSIZE][MAXSIZE];//×ùÎ»ĞÅÏ¢
+    int Curseat[MAXSIZE][2];   //ÒÑÕ¼×ùÎ»ĞÅÏ¢
 }SessionDetail;
 
 void ShowSession(SessionDetail session);
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session);
 void ShowSession(SessionDetail session)
 {
     int i = 0;
     printf("+--------------------------------------------------------------------------------------------------------------------------------------------------+\n");
-    printf("|     åœºæ¬¡ç¼–å·     |      å½±ç‰‡åç§°      | å½±é™¢åç§° | å½±å…å· | å¼€å§‹æ—¶é—´ | ç»“æŸæ—¶é—´ | æ€»æ—¶é•¿ | æ€»åº§ä½ | ä½™ç¥¨æ•° |  ç¥¨ä»·  | è¯­è¨€ç±»å‹ |ç”µå½±ç±»å‹| ä¼˜æƒ æ”¿ç­– | æ€»æ’æ•° | æ€»åˆ—æ•° |\n");
+    printf("|³¡´Î±àºÅ     |Ó°Æ¬Ãû³Æ      |Ó°ÔºÃû³Æ |Ó°ÌüºÅ |¿ªÊ¼Ê±¼ä |½áÊøÊ±¼ä |×ÜÊ±³¤ |×Ü×ùÎ» |ÓàÆ±Êı |Æ±¼Û   |ÓïÑÔÀàĞÍ |µçÓ°ÀàĞÍ|ÓÅ»İÕş²ß |×ÜÅÅÊı |×ÜÁĞÊı |\n");
     printf("+--------------------------------------------------------------------------------------------------------------------------------------------------+\n");
-    printf("|  %s  |     %-9s     |  %s  |   %d   |  %s  |  %s  | ",session.SessioNum,session.MovName,session.CinName,
+    printf("|%-13s|%-14s|%-9s|%-7d|%-9s|%-9s|",session.SessioNum,session.MovName,session.CinName,
            session.MovieRoom,session.Startime,session.Stoptime);
-    printf(" %d |  %d  |  %d  | %.2lf |   %s   |  %s  |  %.2f  |", session.time,session.AllticketNum,session.remainTicket,session.price,session.language,
+    printf("%-7d|%-7d|%-7d|%-7.2lf|%-9s|%-8s|%-9.2f|", session.time,session.AllticketNum,session.remainTicket,session.price,session.language,
            session.MovType,session.discount);
-    printf("   %d   |  %d  |\n", session.row,session.colum);
+    printf("%-7d|%-7d|\n", session.row,session.colum);
     printf("+--------------------------------------------------------------------------------------------------------------------------------------------------+\n");
-    printf("å·²å åº§ä½ä¿¡æ¯:\n");
+    printf("ÒÑÕ¼×ùÎ»ĞÅÏ¢:\n");
     for (i = 0; i < session.AllticketNum - session.remainTicket; i++)
-           printf("%dæ’%dåº§\n", session.Curseat[i][0], session.Curseat[i][1]);
+           printf("%dÅÅ%d×ù\n", session.Curseat[i][0], session.Curseat[i][1]);
 }
-
+SessionDetail Read_session_to_struct(FILE *fp, SessionDetail session)
+{
+    int i = 0, seat = 0, seatx = 0, seaty = 0;
+    fscanf(fp, "%s%s%s%d", session.SessioNum, session.MovName, session.CinName, &session.MovieRoom);
+    fscanf(fp, "%s%s%d%d", session.Startime, session.Stoptime, &session.time, &session.AllticketNum);
+    fscanf(fp, "%d%lf%s%s", &session.remainTicket, &session.price, session.language, session.MovType);
+    fscanf(fp, "%f%d%d", &session.discount, &session.row, &session.colum);
+    while (!feof(fp))
+    {
+        fscanf(fp, "%d", &seat);
+        seatx = seat / 100;
+        seaty = seat % 100;
+        session.Curseat[i][0] = seatx;
+        session.Curseat[i++][1] = seaty;
+    }
+    return session;
+}
