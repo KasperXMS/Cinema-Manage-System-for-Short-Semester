@@ -1,3 +1,6 @@
+#ifndef _PRINT_INFO_H
+#define _PRINT_INFO_H
+
 #include <stdio.h>
 #define MAXSIZE 101
 typedef struct movie{//场次信息结构体
@@ -92,3 +95,4 @@ void ShowCinema(Cinema cin){
     for(i=0;i<cin.SelledSeat;i++)
         printf("%d排%d座已售出\n",cin.Selled_Seat_info[i][0],cin.Selled_Seat_info[i][1]);
 }
+#endif
