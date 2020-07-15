@@ -1,2 +1,2 @@
 # Cinema-Manage-System-for-Short-Semester
-This is a cinema manage system simply run by cmd for our short semester work.
+本项目已成屎山，来访者不要看了（捂脸）
